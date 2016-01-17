@@ -7,6 +7,8 @@
     <string name="title_activity_detail">Opgave</string>
     <string name="action_save">Gem</string>
     <string name="action_delete">Slet</string>
-    <string name="submit">Send uge</string>
+    <string name="submit">Send uge tidsreg</string>
     <string name="title_activity_info">Mine Oplysninger</string>
+    <string name="notification_title">Tidsreg mangler!</string>
+    <string name="notification_text">Tids registering af timer mangler. TODO - hvornår skal notificationen sættes op.</string>
 </resources>

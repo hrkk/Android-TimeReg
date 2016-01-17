@@ -36,6 +36,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="timereg.roninit.dk.timereg.MainActivity" />
         </activity>
+        <activity android:name=".CreateNotificationActivity"></activity>
     </application>
 
 </manifest>

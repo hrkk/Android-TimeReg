@@ -9,8 +9,14 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_submit"
+        android:id="@+id/action_test_notification"
         android:orderInCategory="90"
+        android:title="Test notification"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_submit"
+        android:orderInCategory="95"
         android:title="@string/submit"
         app:showAsAction="always" />
 </menu>

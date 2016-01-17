@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
 
             // set the message to display
-            alertbox.setMessage("Sender timer til server, som sender mail til Mølle med medarbejderens timer og nulstiller tidsregistreringer");
+            alertbox.setMessage("Sender timer til server, som sender mail til Mølle med medarbejderens timer");
 
             // add a neutral button to the alert box and assign a click listener
             alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
@@ -153,12 +153,20 @@ public class MainActivity extends AppCompatActivity {
                 // click listener on the alert box
                 public void onClick(DialogInterface arg0, int arg1) {
                     // the button was clicked
-                  //  Globals.getInstance().reset();
+                    //  Globals.getInstance().reset();
                 }
             });
 
             // show it
             alertbox.show();
+            return true;
+
+        }
+
+        if (id == R.id.action_test_notification) {
+            Intent intent = new Intent(this, CreateNotificationActivity.class);
+            startActivity(intent);
+            return true;
 
         }
 
