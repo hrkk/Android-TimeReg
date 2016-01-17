@@ -1,8 +1,10 @@
 package timereg.roninit.dk.timereg;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -133,7 +135,31 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, InfoActivity.class);
+            startActivity(intent);
             return true;
+        }
+
+        if (id == R.id.action_submit) {
+            //popup window code here
+            AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+
+            // set the message to display
+            alertbox.setMessage("Sender timer til server, som sender mail til Mølle med medarbejderens timer og nulstiller tidsregistreringer");
+
+            // add a neutral button to the alert box and assign a click listener
+            alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+
+                // click listener on the alert box
+                public void onClick(DialogInterface arg0, int arg1) {
+                    // the button was clicked
+                  //  Globals.getInstance().reset();
+                }
+            });
+
+            // show it
+            alertbox.show();
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -269,7 +295,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-
         }
     }
 }
