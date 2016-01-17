@@ -1,0 +1,43 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="timereg.roninit.dk.timereg.DetailActivityFragment"
+    tools:showIn="@layout/activity_detail">
+
+    <!-- projectName -->
+    <EditText
+        android:id="@+id/taskNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Indtast opgave nummer" />
+
+    <EditText
+        android:id="@+id/taskName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Indtast opgave navn" />
+
+    <EditText
+        android:id="@+id/taskHours"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="2"
+        android:hint="Indtast antal timer"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/taskDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Indtask beskrivelse, matrialer, etc. (flere linier)"
+        android:inputType="textMultiLine" />
+
+
+</LinearLayout>

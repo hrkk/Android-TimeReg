@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">TimeReg</string>
+    <string name="action_settings">Mine Oplysninger</string>
+    <string name="tab_time_periode_total">Ugen i alt</string>
+    <string name="day_total_hours">Dagen i alt</string>
+    <string name="tab_todays_total">Dagens tidsregistreringer</string>
+    <string name="title_activity_detail">Opgave</string>
+    <string name="action_save">Gem</string>
+    <string name="action_delete">Slet</string>
+    <string name="submit">Send uge</string>
+</resources>
