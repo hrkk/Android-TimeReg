@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
 
             // set the message to display
-            alertbox.setMessage("Sender timer til server, som sender mail til Mølle med medarbejderens timer");
+            alertbox.setMessage("Sender ugens timer til server, som sender mail til Mølle med medarbejderens timer");
 
             // add a neutral button to the alert box and assign a click listener
             alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {

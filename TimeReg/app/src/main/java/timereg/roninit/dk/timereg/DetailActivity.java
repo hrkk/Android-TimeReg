@@ -95,20 +95,13 @@ public class DetailActivity extends AppCompatActivity {
                 if (-1==taskId) {
                     timeRegTasks.add(newTimeRegTask);
                 } else {
-                    TimeRegTask timeRegTask = null;
-                    int index =0;
-                    for(TimeRegTask e : timeRegTasks) {
-                        if(e.getId().equals(taskId) ) {
-                            timeRegTask = e;
-                            index++;
-                        }
-                    }
+                    TimeRegTask timeRegTask = timeRegTasks.get(taskId);
 
                     setParams(taskNumber, taskName, taskHours, taskDescription, timeRegTask);
-                    timeRegTasks.get(index).setAdditionInfomation(timeRegTask.getAdditionInfomation());
-                    timeRegTasks.get(index).setHours(timeRegTask.getHours());
-                    timeRegTasks.get(index).setTaskName(timeRegTask.getTaskName());
-                    timeRegTasks.get(index).setTaskNumber(timeRegTask.getTaskNumber());
+                    timeRegTasks.get(taskId).setAdditionInfomation(timeRegTask.getAdditionInfomation());
+                    timeRegTasks.get(taskId).setHours(timeRegTask.getHours());
+                    timeRegTasks.get(taskId).setTaskName(timeRegTask.getTaskName());
+                    timeRegTasks.get(taskId).setTaskNumber(timeRegTask.getTaskNumber());
                 }
 
                 Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
