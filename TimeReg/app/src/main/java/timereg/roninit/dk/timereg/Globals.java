@@ -88,6 +88,47 @@ public class Globals {
         return weekSum;
     }
 
+
+    public List<TimeRegTask> getWeekList(String dateAsStr) {
+        Date date = DateUtil.createDate(dateAsStr);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        List<TimeRegTask> taskList = new ArrayList<>();
+        // 1 meaning Monday and 7 meaning Sunday
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) -1;
+        if (dayOfWeek == 0)
+            dayOfWeek = 7;
+
+        // finder ud af hvor mange der skal tilføjes før vi er på søndag
+        while(dayOfWeek != 7) {
+            cal.add(Calendar.DAY_OF_YEAR, +1);
+            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
+            if (dayOfWeek == 0)
+                dayOfWeek = 7;
+        }
+
+        while(dayOfWeek>=1) {
+            String formattedDate = DateUtil.getFormattedDate(cal);
+            Log.d(TAG, "Working on date " + DateUtil.getFormattedDate(cal));
+            List<TimeRegTask> timeRegTasks = taskMap.get(formattedDate);
+            if (timeRegTasks != null)
+                for (TimeRegTask e : timeRegTasks) {
+                    e.setDate(formattedDate);
+                    taskList.add(e);
+                }
+
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
+            if (dayOfWeek == 0) {
+                break;
+            }
+        }
+
+        return taskList;
+    }
+
     private double getDayTotalHours(String dateAsStr) {
         List<TimeRegTask> taskList = taskMap.get(dateAsStr);
         double sum=0.0;

@@ -9,6 +9,7 @@ public class TimeRegTask {
     private String taskName;
     private double hours;
     private String additionInfomation;
+    private String date;
 
 
     public String getId() {
@@ -49,6 +50,14 @@ public class TimeRegTask {
 
     public void setAdditionInfomation(String additionInfomation) {
         this.additionInfomation = additionInfomation;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     @Override
