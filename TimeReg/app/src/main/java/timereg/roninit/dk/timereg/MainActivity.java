@@ -2,9 +2,11 @@ package timereg.roninit.dk.timereg;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -110,6 +112,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+  //      getWindow().getDecorView().getRootView();
+
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,6 +177,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         verifyStoragePermissions(this);
+
+        // Retrieve a PendingIntent that will perform a broadcast
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+        AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        int interval = 10000;
+
+
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+       // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+
+        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
     }
 
     private static double getDayTotalHours(List<TimeRegTask> taskList) {
@@ -204,8 +223,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        if (id == R.id.action_submit || id==R.id.action_preview) {
-
+        if (id==R.id.action_preview) {
 
             try {
                 createPdf();
@@ -235,6 +253,18 @@ public class MainActivity extends AppCompatActivity {
 //            // show it
 //            alertbox.show();
             return true;
+
+        }
+
+        if (id == R.id.action_submit) {
+            EditText date = (EditText) findViewById(R.id.date);
+
+            String dateAsString = date.getText().toString();
+            dateAsString = dateAsString.substring(0,10);
+            View viewById = this.findViewById(android.R.id.content);
+            SubmitTimeTask task = new SubmitTimeTask(viewById, dateAsString);
+
+            AsyncTask<String, Void, String> execute = task.execute();
 
         }
 
@@ -287,8 +317,12 @@ public class MainActivity extends AppCompatActivity {
             String dateAsString = date.getText().toString();
             dateAsString = dateAsString.substring(0,10);
              ReadURLP readUrlTask = new ReadURLP();
+            // TODO get the name for shared
+            readUrlTask.setName("Kasper Odgaard");
             readUrlTask.setDate(dateAsString);
-            readUrlTask.execute();
+
+            AsyncTask<String, Void, String> execute = readUrlTask.execute();
+
         } else {
             Toast.makeText(getApplicationContext(), "SD card not found", Toast.LENGTH_LONG).show();
         }
@@ -438,14 +472,58 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private class SubmitTimeTask extends AsyncTask<String, Void, String> {
+        private String seletedDateAsStr;
+
+        private View rootView;
+        private String timeStamp;
+
+        public SubmitTimeTask(View rootView, String seletedDateAsStr) {
+            this.rootView = rootView;
+            this.seletedDateAsStr = seletedDateAsStr;
+            Date date = new Date() ;
+
+            timeStamp =   DateUtil.getFormattedDate(new Date());
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String filename = Globals.getInstance().getFilename();
+            RestTemplate restTemplate = new RestTemplate();
+            HttpMessageConverter stringHttpMessageConverternew = new StringHttpMessageConverter();
+            restTemplate.getMessageConverters().add(stringHttpMessageConverternew);
+
+
+            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName="+filename, String.class);
+           Log.i(LOG_TAG, "SubmitTimeTask=" + quote);
+            // changes status
+
+
+            List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
+            if(weekList!=null)
+                for(TimeRegTask e : weekList) {
+                    e.setSubmitDate(timeStamp);
+                }
+            return "response";
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            TextView textView = (TextView) rootView.findViewById(R.id.submitStatus);
+            textView.setText("Godkent "+timeStamp);
+        }
+    }
+
 
     private class ReadURLP extends AsyncTask<String, Void, String> {
 
         private String seletedDateAsStr;
+        private String name;
 
         public void setDate (String date) {
             this.seletedDateAsStr = date;
         }
+        public void setName ( String name) {this.name =name;}
         // public static String URL = Constants.CONTEXT_ROOT + "/LoppemarkederAdminApp/markedItem/listJSON2";
         File myFile;
         @Override
@@ -453,8 +531,6 @@ public class MainActivity extends AppCompatActivity {
 
             URL url = null;
             try {
-
-
                 File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS), "pdfdemo");
                 if (!pdfFolder.exists()) {
@@ -480,7 +556,10 @@ public class MainActivity extends AppCompatActivity {
 
               //  RestTemplate restTemplate = new RestTemplate();
                 RequestObject rq = new RequestObject();
-
+                rq.startDate = Globals.getInstance().getPeriodeStartDate(seletedDateAsStr);
+                rq.endDate = Globals.getInstance().getPeriodeEndDate(seletedDateAsStr);
+                rq.name = name;
+                rq.totalHours = ""+Globals.getInstance().getWeekTotal(seletedDateAsStr);
                 List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
                 if(weekList!=null)
                 for(TimeRegTask e : weekList) {
@@ -507,6 +586,7 @@ public class MainActivity extends AppCompatActivity {
                // String fileName = pdfFolder + "/"+ timeStamp + ".pdf";
                  String deviceFileName = pdfFolder + "/"+filename;
                 Log.i(LOG_TAG, "fileName "+filename);
+                Globals.getInstance().setFilename(filename);
 
                 myFile = new File(deviceFileName);
                 //

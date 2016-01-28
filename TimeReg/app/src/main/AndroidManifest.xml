@@ -37,6 +37,7 @@
                 android:value="timereg.roninit.dk.timereg.MainActivity" />
         </activity>
         <activity android:name=".CreateNotificationActivity"></activity>
+        <receiver android:name=".AlarmReceiver"></receiver>
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

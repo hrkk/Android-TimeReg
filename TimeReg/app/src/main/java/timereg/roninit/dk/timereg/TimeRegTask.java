@@ -11,6 +11,8 @@ public class TimeRegTask {
     private String additionInfomation;
     private String date;
 
+    private String submitDate;
+
 
     public String getId() {
         return id;
@@ -58,6 +60,14 @@ public class TimeRegTask {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setSubmitDate(String submitDate) {
+        this.submitDate = submitDate;
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ public class Globals {
     // Global variable
     private int data;
 
+    public String filename;
+
     //private List<TimeRegTask> tasks;
     private List<List<TimeRegTask>> taskListList;
 
@@ -33,7 +36,15 @@ public class Globals {
         return this.data;
     }
 
-//    public void setTasks(List<TimeRegTask> tasks) {
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    //    public void setTasks(List<TimeRegTask> tasks) {
 //        this.tasks = tasks;
 //    }
 
@@ -88,7 +99,41 @@ public class Globals {
         return weekSum;
     }
 
+    public String getPeriodeEndDate(String dateAsStr) {
 
+        Calendar cal = getPeriodeEndDateAsCal(dateAsStr);
+
+        return DateUtil.getFormattedDate(cal);
+    }
+
+    public String getPeriodeStartDate(String dateAsStr) {
+        Calendar cal = getPeriodeEndDateAsCal(dateAsStr);
+        cal.add(Calendar.DAY_OF_YEAR, -7);
+        return DateUtil.getFormattedDate(cal);
+    }
+
+
+    private Calendar getPeriodeEndDateAsCal(String dateAsStr) {
+        Date date = DateUtil.createDate(dateAsStr);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+
+        // 1 meaning Monday and 7 meaning Sunday
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) -1;
+        if (dayOfWeek == 0)
+            dayOfWeek = 7;
+
+        // finder ud af hvor mange der skal tilføjes før vi er på søndag
+        while(dayOfWeek != 7) {
+            cal.add(Calendar.DAY_OF_YEAR, +1);
+            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
+            if (dayOfWeek == 0)
+                dayOfWeek = 7;
+        }
+        return cal;
+    }
     public List<TimeRegTask> getWeekList(String dateAsStr) {
         Date date = DateUtil.createDate(dateAsStr);
 
@@ -125,7 +170,7 @@ public class Globals {
                 break;
             }
         }
-
+        Collections.reverse(taskList);
         return taskList;
     }
 
