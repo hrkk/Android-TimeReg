@@ -149,8 +149,7 @@ public class MainActivity extends AppCompatActivity {
         TextView dayTotalHours =  (TextView) findViewById(R.id.total_hours);
         dayTotalHours.setText("" + getDayTotalHours(taskList) + " timer");
 
-        TextView weekTotalHours = (TextView) findViewById(R.id.week_total_hours);
-        weekTotalHours.setText("" + Globals.getInstance().getWeekTotal(seletedDateAsStr) +" timer");
+
 
         listView = (ListView) findViewById(R.id.listView);
        // sets op task list
@@ -186,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
         int interval = 10000;
 
 
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+        // http://blog.masconsult.eu/blog/2014/01/17/scheduling-alarms/
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
        // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
 
         Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
@@ -272,7 +272,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, CreateNotificationActivity.class);
             startActivity(intent);
             return true;
+        }
 
+        if (id == R.id.action_overview) {
+            Intent intent = new Intent(this, OverviewActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -442,9 +447,6 @@ public class MainActivity extends AppCompatActivity {
             TextView dayTotalHours =  (TextView) getActivity().findViewById(R.id.total_hours);
             dayTotalHours.setText("" + getDayTotalHours(tasks) + " timer");
 
-            TextView weekTotalHours = (TextView) getActivity().findViewById(R.id.week_total_hours);
-            weekTotalHours.setText("" + Globals.getInstance().getWeekTotal(dateAsStr) +" timer");
-
             ListView listView = (ListView)  getActivity().findViewById(R.id.listView);
 
             ArrayAdapter<TimeRegTask> arrayAdapter
@@ -509,8 +511,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
-            TextView textView = (TextView) rootView.findViewById(R.id.submitStatus);
-            textView.setText("Godkent "+timeStamp);
+
         }
     }
 

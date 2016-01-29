@@ -4,12 +4,29 @@
     <string name="tab_time_periode_total">Ugen i alt</string>
     <string name="day_total_hours">Dagen i alt</string>
     <string name="tab_todays_total">Dagens tidsregistreringer</string>
+    <string name="title_activity_main">Dagens tidsregistreringer</string>
     <string name="title_activity_detail">Opgave</string>
     <string name="action_save">Gem</string>
     <string name="action_delete">Slet</string>
+    <string name="action_submit">Godkend</string>
     <string name="submit">Godkend</string>
     <string name="title_activity_info">Mine Oplysninger</string>
     <string name="notification_title">Tidsreg mangler!</string>
     <string name="notification_text">Tids registering af timer mangler. TODO - hvornår skal notificationen sættes op.</string>
     <string name="action_preview">Preview</string>
+    <string name="title_activity_overview">Ugens tidsregistreringer</string>
+    <string name="overview">Oversigt</string>
+    <string name="country_prompt">Choose a country</string>
+    <string name="week_total_regs">Ugens tidsregistreringer</string>
+
+    <string-array name="country_arrays">
+        <item>Malaysia</item>
+        <item>United States</item>
+        <item>Indonesia</item>
+        <item>France</item>
+        <item>Italy</item>
+        <item>Singapore</item>
+        <item>New Zealand</item>
+        <item>India</item>
+    </string-array>
 </resources>

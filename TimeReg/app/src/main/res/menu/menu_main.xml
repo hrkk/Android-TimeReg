@@ -25,4 +25,11 @@
         android:orderInCategory="95"
         android:title="@string/action_preview"
         app:showAsAction="never" />
+
+
+    <item
+        android:id="@+id/action_overview"
+        android:orderInCategory="95"
+        android:title="@string/overview"
+        app:showAsAction="never" />
 </menu>
