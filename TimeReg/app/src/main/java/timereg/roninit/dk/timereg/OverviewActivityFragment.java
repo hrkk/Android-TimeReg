@@ -30,7 +30,7 @@ import timereg.roninit.dk.timereg.R;
  */
 public class OverviewActivityFragment extends Fragment {
 
-    private Spinner spinner1, spinner2;
+    private Spinner spinner2;
 
     public OverviewActivityFragment() {
     }
@@ -69,6 +69,7 @@ public class OverviewActivityFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
 
                 String dateAsStr = parent.getItemAtPosition(position).toString().substring(0, 10);
+                Globals.getInstance().setOverviewSeletedDate(dateAsStr);
                 Log.d("TAG", "selectedDate= " + dateAsStr);
                 TextView weekTotalHours = (TextView) rootView.findViewById(R.id.ow_week_total_hours);
                 weekTotalHours.setText("" + Globals.getInstance().getWeekTotal(dateAsStr) + " timer");

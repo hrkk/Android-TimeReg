@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
      String seletedDateAsStr;
      private ListView listView;
 
+    private AlarmManager manager;
+
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -177,19 +179,27 @@ public class MainActivity extends AppCompatActivity {
 
         verifyStoragePermissions(this);
 
-        // Retrieve a PendingIntent that will perform a broadcast
-        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        boolean alarmUp = (PendingIntent.getBroadcast(this, 0,
+                new Intent(this, AlarmReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
 
-        AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        int interval = 10000;
+        if(alarmUp)
+            Toast.makeText(this, "alarmUp", Toast.LENGTH_SHORT).show();
+
+        if (manager == null) {
+            // Retrieve a PendingIntent that will perform a broadcast
+            Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+
+            AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            int interval = 10000;
 
 
-        // http://blog.masconsult.eu/blog/2014/01/17/scheduling-alarms/
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
-       // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-
-        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+            // http://blog.masconsult.eu/blog/2014/01/17/scheduling-alarms/
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
+            // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+            Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private static double getDayTotalHours(List<TimeRegTask> taskList) {
@@ -254,24 +264,6 @@ public class MainActivity extends AppCompatActivity {
 //            alertbox.show();
             return true;
 
-        }
-
-        if (id == R.id.action_submit) {
-            EditText date = (EditText) findViewById(R.id.date);
-
-            String dateAsString = date.getText().toString();
-            dateAsString = dateAsString.substring(0,10);
-            View viewById = this.findViewById(android.R.id.content);
-            SubmitTimeTask task = new SubmitTimeTask(viewById, dateAsString);
-
-            AsyncTask<String, Void, String> execute = task.execute();
-
-        }
-
-        if (id == R.id.action_test_notification) {
-            Intent intent = new Intent(this, CreateNotificationActivity.class);
-            startActivity(intent);
-            return true;
         }
 
         if (id == R.id.action_overview) {
@@ -511,6 +503,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
+
 
         }
     }

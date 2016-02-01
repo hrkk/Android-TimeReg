@@ -12,8 +12,8 @@
     <string name="submit">Godkend</string>
     <string name="title_activity_info">Mine Oplysninger</string>
     <string name="notification_title">Tidsreg mangler!</string>
-    <string name="notification_text">Tids registering af timer mangler. TODO - hvornår skal notificationen sættes op.</string>
-    <string name="action_preview">Preview</string>
+    <string name="notification_text">Tids registering af timer mangler i periode 21-01-16 - 30-01-16.</string>
+    <string name="action_preview">Pdf</string>
     <string name="title_activity_overview">Ugens tidsregistreringer</string>
     <string name="overview">Oversigt</string>
     <string name="country_prompt">Choose a country</string>

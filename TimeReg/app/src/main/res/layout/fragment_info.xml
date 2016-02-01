@@ -26,7 +26,7 @@
             />
 
         <EditText
-            android:id="@+id/info_email"
+            android:id="@+id/fullName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
@@ -52,7 +52,7 @@
             />
 
         <EditText
-            android:id="@+id/info_email2"
+            android:id="@+id/info_id_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
@@ -78,7 +78,7 @@
             />
 
         <EditText
-            android:id="@+id/info_email3"
+            android:id="@+id/info_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
@@ -87,4 +87,10 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             />
     </LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:id="@+id/button"
+        android:layout_marginTop="50dp" />
 </LinearLayout>

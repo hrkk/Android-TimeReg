@@ -44,6 +44,8 @@ public class Globals {
         this.filename = filename;
     }
 
+    private String overviewSeletedDate;
+
     //    public void setTasks(List<TimeRegTask> tasks) {
 //        this.tasks = tasks;
 //    }
@@ -255,5 +257,13 @@ public class Globals {
 
     public Map<String, List<TimeRegTask>> getTaskMap() {
         return taskMap;
+    }
+
+    public void setOverviewSeletedDate(String dateAsStr) {
+        overviewSeletedDate = dateAsStr;
+    }
+
+    public String getOverviewSeletedDate() {
+        return overviewSeletedDate;
     }
 }

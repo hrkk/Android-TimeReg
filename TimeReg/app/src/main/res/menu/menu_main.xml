@@ -9,25 +9,6 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_test_notification"
-        android:orderInCategory="100"
-        android:title="Test notification"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_submit"
-        android:orderInCategory="96"
-        android:title="@string/submit"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_preview"
-        android:orderInCategory="95"
-        android:title="@string/action_preview"
-        app:showAsAction="never" />
-
-
-    <item
         android:id="@+id/action_overview"
         android:orderInCategory="95"
         android:title="@string/overview"

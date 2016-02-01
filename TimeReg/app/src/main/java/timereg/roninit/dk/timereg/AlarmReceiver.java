@@ -17,14 +17,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // For our recurring task, we'll just display a message
-        Toast.makeText(context, "I'm running waked up", Toast.LENGTH_SHORT).show();
+     //   Toast.makeText(context, "I'm running waked up", Toast.LENGTH_SHORT).show();
         PendingIntent pi = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
         //Resources r = getResources();
         Notification notification = new NotificationCompat.Builder(context)
                 .setTicker("Tidsreg mangler!")
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setContentTitle("Tidsreg mangler!")
-                .setContentText("Tids registering af timer mangler.")
+                .setContentText("Tids registering af timer mangler for uge XXX")
                 .setContentIntent(pi)
                 .setAutoCancel(true)
                 .build();

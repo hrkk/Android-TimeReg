@@ -1,27 +1,50 @@
 package timereg.roninit.dk.timereg;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itextpdf.text.DocumentException;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Date;
+import java.util.List;
 
 import timereg.roninit.dk.timereg.R;
 
 public class OverviewActivity extends AppCompatActivity {
+    public static final String LOG_TAG = "OverviewActivity_TAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,74 +76,175 @@ public class OverviewActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_ow_submit) {
             View rootView = this.findViewById(android.R.id.content);
-            SubmitTimeTask task = new SubmitTimeTask(rootView);
+            SharedPreferences sharedPreferences = getSharedPreferences(InfoActivityFragment.MyPREFERENCES, Context.MODE_PRIVATE);
+            String prefName = sharedPreferences.getString(InfoActivityFragment.Name, "Not found");
+            SubmitTimeTask task = new SubmitTimeTask(prefName,rootView);
             task.execute();
 
             return true;
         }
+
+        if (id==R.id.action_preview) {
+            createPdf();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
     //http://www.codeproject.com/Articles/986574/Android-iText-Pdf-Example
-    private void createPdf() throws IOException, DocumentException {
-
-
-
-        //   Environment. getExternalStoragePublicDirectory();
-
-//        myFile.createNewFile();
-
-        // String filename = "myfile.pdf";
-
+    private void createPdf()  {
         String state = Environment.getExternalStorageState();
-        if(Environment.MEDIA_MOUNTED.equals(state)){
-            // File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            //  File dir = new File(root.getAbsolutePath()+"/MyAppFile");
-            // if(!dir.exists()){
-            //     dir.mkdir();
-            // }
-
-            /*
-
-            File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "pdfdemo");
-            if (!pdfFolder.exists()) {
-                pdfFolder.mkdir();
-                Log.i("LOG_TAG", "Pdf Directory created" + pdfFolder.getAbsolutePath() + " ::" + pdfFolder.getPath());
-            }
-
-            File file = new File(pdfFolder, "message2.txt");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write("hej".getBytes());
-            fileOutputStream.close();
-            Toast.makeText(getApplicationContext(), "Message saved", Toast.LENGTH_LONG).show();
-            */
-
-
-
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            SharedPreferences sharedPreferences = getSharedPreferences(InfoActivityFragment.MyPREFERENCES, Context.MODE_PRIVATE);
+            String prefName = sharedPreferences.getString(InfoActivityFragment.Name, "Not found");
+            View rootView = this.findViewById(android.R.id.content);
+            PreviewPdfTask previewTask = new PreviewPdfTask(prefName, rootView);
+            previewTask.execute();
 
         } else {
             Toast.makeText(getApplicationContext(), "SD card not found", Toast.LENGTH_LONG).show();
         }
-
     }
+
+    private void viewPdf(File myFile){
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(myFile), "application/pdf");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(intent);
+    }
+
+    private class PreviewPdfTask extends AsyncTask<String, Void, String> {
+        File myFile;
+        String seletedDateAsStr;
+
+        String name;
+        private View rootView;
+        public PreviewPdfTask(String name, View rootView) {
+
+            this.name = name;
+            this.rootView = rootView;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            seletedDateAsStr = Globals.getInstance().getOverviewSeletedDate();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            URL url = null;
+            try {
+                File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS), "timereg");
+                if (!pdfFolder.exists()) {
+                    pdfFolder.mkdir();
+                    Log.i(LOG_TAG, "Pdf Directory created" + pdfFolder.getAbsolutePath() + " ::" + pdfFolder.getPath());
+                }
+
+                RestTemplate restTemplate = new RestTemplate();
+                HttpMessageConverter stringHttpMessageConverternew = new StringHttpMessageConverter();
+                restTemplate.getMessageConverters().add(stringHttpMessageConverternew);
+                RequestObject rq = createRequestObject(seletedDateAsStr, name);
+
+
+                HttpEntity<RequestObject> request = new HttpEntity<>(rq);
+                String filename = restTemplate.postForObject("http://www.roninit.dk:81/timeReg/makePdf", request, String.class);
+                Log.i(LOG_TAG, "postForObject called on server "+filename);
+                // then we read it
+
+                String deviceFileName = pdfFolder + "/"+filename;
+                Log.i(LOG_TAG, "fileName "+filename);
+
+                // TODO store in DB
+                Globals.getInstance().setFilename(filename);
+
+                myFile = new File(deviceFileName);
+                //
+                url = new URL("http://www.roninit.dk:81/timeReg/showImage?fileName="+filename);
+                URLConnection connection = url.openConnection();
+                InputStream inputStream = connection.getInputStream();
+                copyInputStreamToFile(inputStream, myFile);
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "response";
+        }
+
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            viewPdf(myFile);
+
+        }
+
+        private void copyInputStreamToFile( InputStream in, File file ) {
+            try {
+                OutputStream out = new FileOutputStream(file);
+                byte[] buf = new byte[1024];
+                int len;
+                while((len=in.read(buf))>0){
+                    out.write(buf,0,len);
+                }
+                out.close();
+                in.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
 
     private class SubmitTimeTask extends AsyncTask<String, Void, String> {
 
         private View rootView;
         private String timeStamp;
+        private String seletedDateAsStr;
+        private String name;
 
-        public SubmitTimeTask(View rootView) {
+        public SubmitTimeTask(String name, View rootView) {
+            this.name = name;
             this.rootView = rootView;
-            Date date = new Date() ;
-
             timeStamp =   DateUtil.getFormattedDate(new Date());
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            seletedDateAsStr = Globals.getInstance().getOverviewSeletedDate();
+        }
+
+        @Override
         protected String doInBackground(String... params) {
-            // TO BE DONE
-            return null;
+            RestTemplate restTemplate = new RestTemplate();
+            HttpMessageConverter stringHttpMessageConverternew = new StringHttpMessageConverter();
+            restTemplate.getMessageConverters().add(stringHttpMessageConverternew);
+            RequestObject rq = createRequestObject(seletedDateAsStr, name);
+
+
+            HttpEntity<RequestObject> request = new HttpEntity<>(rq);
+            String filename = restTemplate.postForObject("http://www.roninit.dk:81/timeReg/makePdf", request, String.class);
+            Log.i(LOG_TAG, "postForObject called on server "+filename);
+            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName="+filename, String.class);
+
+            // changes status
+
+
+            List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
+            if(weekList!=null)
+                for(TimeRegTask e : weekList) {
+                    e.setSubmitDate(timeStamp);
+                }
+
+            return "response";
         }
 
         @Override
@@ -129,8 +253,30 @@ public class OverviewActivity extends AppCompatActivity {
             // TODO
             TextView textView = (TextView) rootView.findViewById(R.id.ow_submitStatus);
             textView.setText("Godkent "+timeStamp);
-
+            Toast.makeText(getBaseContext(), "Timer er godkendt", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @NonNull
+    private RequestObject createRequestObject(String seletedDateAsStr, String name) {
+        // first we create the file
+        RequestObject rq = new RequestObject();
+        rq.startDate = Globals.getInstance().getPeriodeStartDate(seletedDateAsStr);
+        rq.endDate = Globals.getInstance().getPeriodeEndDate(seletedDateAsStr);
+        rq.name = name;
+        rq.totalHours = "" + Globals.getInstance().getWeekTotal(seletedDateAsStr);
+        List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
+        if (weekList != null)
+            for (TimeRegTask e : weekList) {
+                SaveTask saveTask1 = new SaveTask();
+                saveTask1.setDate(e.getDate());
+                saveTask1.setDesciption(e.getAdditionInfomation());
+                saveTask1.setHours("" + e.getHours());
+                saveTask1.setTaskName(e.getTaskName());
+                saveTask1.setTaskNo(e.getTaskNumber());
+                rq.taskList.add(saveTask1);
+            }
+        return rq;
     }
 
 
