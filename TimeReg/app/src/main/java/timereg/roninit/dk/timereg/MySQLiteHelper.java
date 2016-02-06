@@ -273,7 +273,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
-        Log.d("getAllTimeReg()", books.toString()+" date "+timeReg.getDate());
+        if(!books.isEmpty())
+            Log.d("getAllTimeReg()", books.toString()+" date "+timeReg.getDate());
 
         // return books
         return books;

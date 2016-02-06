@@ -10,14 +10,19 @@
     tools:context="timereg.roninit.dk.timereg.DetailActivityFragment"
     tools:showIn="@layout/activity_detail">
 
+    <AutoCompleteTextView
+        android:id="@+id/company"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Indtast virksomhedsnavn som opgaven udføres for" />
     <!-- projectName -->
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/taskNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Indtast opgave nummer" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/taskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

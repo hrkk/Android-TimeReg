@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ public class DetailActivity extends AppCompatActivity {
     public static final java.lang.String EXTRA_TASK_ID = "EXTRA_TASK_ID";
     String seletedDateAsStr;
     int taskId;
+    private MySQLiteHelper db;
 
     public static final String LOG_TAG = "DetailActivity_TAG";
 
@@ -34,13 +37,35 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
+        db = new MySQLiteHelper(this);
         if (getIntent().getExtras() != null) {
             seletedDateAsStr = getIntent().getExtras().getString(EXTRA_SELECTED_DATE);
             seletedDateAsStr = seletedDateAsStr.substring(0,10);
             taskId = getIntent().getExtras().getInt(EXTRA_TASK_ID, -1);
         }
 
+        AutoCompleteTextView company = (AutoCompleteTextView) findViewById(R.id.company);
+        AutoCompleteTextView taskNumber = (AutoCompleteTextView) findViewById(R.id.taskNumber);
+        AutoCompleteTextView taskName = (AutoCompleteTextView) findViewById(R.id.taskName);
+
+        List<TimeRegTask> allTimeReg = db.getAllTimeReg();
+
+        String[] companies = Util.getAutoCompleteCompany(allTimeReg).toArray(new String[0]);
+        String[] taskNumbers = Util.getAutoCompleteTaskNumber(allTimeReg).toArray(new String[0]);
+        String[] taskNames = Util.getAutoCompleteTaskName(allTimeReg).toArray(new String[0]);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,companies);
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,taskNumbers);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,taskNames);
+
+        // set adapter for the auto complete fields
+        company.setAdapter(adapter);
+        taskNumber.setAdapter(adapter1);
+        taskName.setAdapter(adapter2);
+        // specify the minimum type of characters before drop-down list is shown
+        company.setThreshold(1);
+        taskNumber.setThreshold(1);
+        taskName.setThreshold(1);
 
         // TODO look up in DB
         if(-1!=taskId) {
@@ -48,11 +73,8 @@ public class DetailActivity extends AppCompatActivity {
             TimeRegTask timeRegTask =db.getTimeReg(taskId);
 
             //Log.d(LOG_TAG, "DB taskId "+name.getId() + " "+name.getTaskNumber() +" " +name.getTaskName());
-
-
-            EditText taskNumber = (EditText) findViewById(R.id.taskNumber);
+            company.setText(timeRegTask.getCompany());
             taskNumber.setText(timeRegTask.getTaskNumber());
-            EditText taskName = (EditText) findViewById(R.id.taskName);
             taskName.setText(timeRegTask.getTaskName());
 
             EditText taskHours = (EditText) findViewById(R.id.taskHours);
@@ -61,9 +83,7 @@ public class DetailActivity extends AppCompatActivity {
             EditText taskDecription = (EditText) findViewById(R.id.taskDescription);
             taskDecription.setText(timeRegTask.getAdditionInfomation());
         }
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -86,6 +106,7 @@ public class DetailActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_save) {
             // 1. læs input text
+            EditText company = (EditText) findViewById(R.id.company);
             EditText taskNumber = (EditText) findViewById(R.id.taskNumber);
             EditText taskName = (EditText) findViewById(R.id.taskName);
             EditText taskHours = (EditText) findViewById(R.id.taskHours);
@@ -93,9 +114,9 @@ public class DetailActivity extends AppCompatActivity {
 
             // 2. tilføje til global liste
             if (taskName != null && taskHours != null && taskHours.length() > 0 && taskNumber != null) {
-                MySQLiteHelper db = new MySQLiteHelper(this);
+
                 TimeRegTask newTimeRegTask = new TimeRegTask();
-                setParams(taskNumber, taskName, taskHours, taskDescription, seletedDateAsStr, newTimeRegTask);
+                setParams(company, taskNumber, taskName, taskHours, taskDescription, seletedDateAsStr, newTimeRegTask);
 
 
                // List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
@@ -104,14 +125,10 @@ public class DetailActivity extends AppCompatActivity {
                 // hvis taskId er der ikke valgt en og den næste i listen vælges
                 if (-1==taskId) {
                     db.addTimeReg(newTimeRegTask);
-
-
                 } else {
-                    // TODO DB update
                     TimeRegTask timeRegTask =  db.getTimeReg(taskId);
-                    setParams(taskNumber, taskName, taskHours, taskDescription, timeRegTask);
+                    setParams(company, taskNumber, taskName, taskHours, taskDescription, timeRegTask);
                     db.updateTimeReg(timeRegTask);
-
                 }
 
               //  Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
@@ -137,7 +154,8 @@ public class DetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setParams(EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, TimeRegTask newTimeRegTask) {
+    private void setParams(EditText company,EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, TimeRegTask newTimeRegTask) {
+        newTimeRegTask.setCompany(company.getText().toString());
         newTimeRegTask.setTaskNumber(taskNumber.getText().toString());
         newTimeRegTask.setTaskName(taskName.getText().toString());
         newTimeRegTask.setHours(taskHours.getText().toString());
@@ -146,7 +164,8 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setParams(EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, String seletedDateAsStr,TimeRegTask newTimeRegTask) {
+    private void setParams(EditText company, EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, String seletedDateAsStr,TimeRegTask newTimeRegTask) {
+        newTimeRegTask.setCompany(company.getText().toString());
         newTimeRegTask.setTaskNumber(taskNumber.getText().toString());
         newTimeRegTask.setTaskName(taskName.getText().toString());
         newTimeRegTask.setHours(taskHours.getText().toString());

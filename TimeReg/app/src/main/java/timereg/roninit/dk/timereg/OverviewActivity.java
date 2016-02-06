@@ -76,11 +76,29 @@ public class OverviewActivity extends AppCompatActivity {
         // as you specify a parent activity in Andro
         int id = item.getItemId();
 
+        // lets check if info's is set
+        SharedPreferences sharedpreferences = getSharedPreferences(InfoActivityFragment.MyPREFERENCES, Context.MODE_PRIVATE);
+
+        String prefName =  sharedpreferences.getString(InfoActivityFragment.Name, "");
+        String prefIdNumber =  sharedpreferences.getString(InfoActivityFragment.IdNumber, "");
+        String prefEmail =  sharedpreferences.getString(InfoActivityFragment.Email, "");
+        String prefServerApi = sharedpreferences.getString(InfoActivityFragment.SERVER_API_KEY, "");
+
+        if("".equals(prefName) || "".equals(prefIdNumber) || "".equals(prefEmail) || "".equals(prefServerApi)){
+            Toast.makeText(this,
+                    "Felter i \"Mine oplysninger\" skal udfyldes før du kan preview pdf og godkende timer - DENNE HER VERSION LADER DIG FORSÆTTE",
+                    Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, InfoActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_ow_submit) {
             View rootView = this.findViewById(android.R.id.content);
-            SharedPreferences sharedPreferences = getSharedPreferences(InfoActivityFragment.MyPREFERENCES, Context.MODE_PRIVATE);
-            String prefName = sharedPreferences.getString(InfoActivityFragment.Name, "Not found");
+            if("".equals(prefName))
+                prefName ="Not found";
             SubmitTimeTask task = new SubmitTimeTask(prefName,rootView);
             task.execute();
 
@@ -203,9 +221,6 @@ public class OverviewActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
 
     private class SubmitTimeTask extends AsyncTask<String, Void, String> {
 

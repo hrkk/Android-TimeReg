@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -188,23 +189,20 @@ public class MainActivity extends AppCompatActivity {
                 new Intent("timereg.roninit.dk.timereg.MY_UNIQUE_ACTION"),
                 PendingIntent.FLAG_NO_CREATE) != null);
 
-        if(alarmUp)
-            Toast.makeText(this, "alarm is UP - dont set a new one", Toast.LENGTH_SHORT).show();
-
-
+        if(alarmUp) {
+            Log.d(LOG_TAG, "alarm is UP - dont set a new one");
+        } else {
             // Retrieve a PendingIntent that will perform a broadcast
             Intent alarmIntent = new Intent("timereg.roninit.dk.timereg.MY_UNIQUE_ACTION");
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            int interval = 10000;
-
 
             // http://blog.masconsult.eu/blog/2014/01/17/scheduling-alarms/
             manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
             // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
-            Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
-
+            Log.d(LOG_TAG, "Setting alarm");
+        }
     }
 
 

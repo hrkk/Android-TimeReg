@@ -19,10 +19,12 @@ public class InfoActivityFragment extends Fragment {
     public static final String Name = "nameKey";
     public static final String IdNumber = "idKey";
     public static final String Email = "emailKey";
+    public static final String SERVER_API_KEY = "apiKey";
     SharedPreferences sharedpreferences;
     EditText fullName;
     EditText infoIdNumber;
     EditText email;
+    EditText serverApi;
 
     public InfoActivityFragment() {
     }
@@ -36,16 +38,19 @@ public class InfoActivityFragment extends Fragment {
         String prefName =  sharedpreferences.getString(Name, "");
         String prefIdNumber =  sharedpreferences.getString(IdNumber, "");
         String prefEmail =  sharedpreferences.getString(Email, "");
+        String prefServerApi = sharedpreferences.getString(SERVER_API_KEY, "");
 
 
         fullName=(EditText)rootView.findViewById(R.id.fullName);
         infoIdNumber =(EditText) rootView.findViewById(R.id.info_id_number);
         email =(EditText) rootView.findViewById(R.id.info_email);
+        serverApi=(EditText) rootView.findViewById(R.id.apiKey);
 
 
         fullName.setText(prefName);
         infoIdNumber.setText(prefIdNumber);
         email.setText(prefEmail);
+        serverApi.setText(prefServerApi);
         Button b1=(Button)rootView.findViewById(R.id.button);
 
 
@@ -55,13 +60,15 @@ public class InfoActivityFragment extends Fragment {
                 String n  = fullName.getText().toString();
                 String ph  = infoIdNumber.getText().toString();
                 String e  = email.getText().toString();
+                String api = serverApi.getText().toString();
 
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putString(Name, n);
                 editor.putString(IdNumber, ph);
                 editor.putString(Email, e);
+                editor.putString(SERVER_API_KEY, api);
                 editor.commit();
-                Toast.makeText(getContext(), "Thanks", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Gemt...", Toast.LENGTH_LONG).show();
             }
         });
         return rootView;

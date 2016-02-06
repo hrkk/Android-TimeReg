@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:textSize="20sp"
-            android:text="Kasper Odgaard"
+            android:hint="Fornavn og efternavn"
             android:paddingRight="@dimen/activity_horizontal_margin"
             />
     </LinearLayout>
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:textSize="20sp"
-            android:text="a74099"
+            android:hint="medarbejder id fx a94077"
             android:paddingRight="@dimen/activity_horizontal_margin"
             />
     </LinearLayout>
@@ -83,14 +83,39 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:textSize="20sp"
-            android:text="kasper.odgaard@gmail.com"
+            android:hint="email fx. abc@mail.com"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            android:text="Api-key"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            />
+
+        <EditText
+            android:id="@+id/apiKey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="20sp"
+            android:hint="api-key til server"
             android:paddingRight="@dimen/activity_horizontal_margin"
             />
     </LinearLayout>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="Gem"
         android:id="@+id/button"
         android:layout_marginTop="50dp" />
 </LinearLayout>

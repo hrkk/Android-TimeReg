@@ -50,10 +50,7 @@ public class OverviewActivityFragment extends Fragment {
     public void addItemsOnSpinner2( View rootView ) {
 
         spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
-        List<String> list = new ArrayList<String>();
-        list.add("25-01-2016 - 31-01-2016");
-        list.add("01-02-2016 - 07-02-2016");
-        list.add("08-02-2016 - 15-02-2016");
+        List<String> list = Util.buildPeriodeDropdownList();
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -66,10 +63,11 @@ public class OverviewActivityFragment extends Fragment {
         spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+              /*
                 Toast.makeText(parent.getContext(),
                         "OnItemSelectedListener : " + parent.getItemAtPosition(position).toString(),
                         Toast.LENGTH_SHORT).show();
-
+*/
                 String dateAsStr = parent.getItemAtPosition(position).toString().substring(0, 10);
                 Globals.getInstance().setOverviewSeletedDate(dateAsStr);
                 Log.d("spinner", "selectedDate= " + dateAsStr);
@@ -113,11 +111,11 @@ public class OverviewActivityFragment extends Fragment {
 
 
                     TextView c2 = new TextView(getContext());
-                    c2.setText(e.getTaskNumber());
+                    c2.setText(e.getCompany());
                     c2.setBackgroundColor(Color.WHITE);
 
                     TextView c3 = new TextView(getContext());
-                    c3.setText(e.getTaskName());
+                    c3.setText(e.getTaskNumber() +"-"+e.getTaskName());
                     c3.setBackgroundColor(Color.WHITE);
 
                     TextView c4 = new TextView(getContext());
@@ -134,9 +132,12 @@ public class OverviewActivityFragment extends Fragment {
                     // new row for description
                     TableRow tr2 = new TableRow(getContext());
 
-                    tr2.addView(new TextView(getContext())); // empty
+                    TextView c12 = new TextView(getContext());
+                    c12.setBackgroundColor(Color.WHITE);
+                    c12.setText("Beskrivelse:");
+                    tr2.addView(c12); // empty
                     TextView c5 = new TextView(getContext());
-                    c5.setText(e.getAdditionInfomation());
+                    c5.setText(e.getAdditionInfomation()!=null ? e.getAdditionInfomation() : "Ikke angivet");
                     c5.setBackgroundColor(Color.WHITE);
                     tr2.addView(c5);
                     TableRow.LayoutParams params = (TableRow.LayoutParams) c5.getLayoutParams();
