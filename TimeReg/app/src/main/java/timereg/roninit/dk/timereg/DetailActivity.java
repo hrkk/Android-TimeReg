@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,8 @@ public class DetailActivity extends AppCompatActivity {
     public static final java.lang.String EXTRA_TASK_ID = "EXTRA_TASK_ID";
     String seletedDateAsStr;
     int taskId;
+
+    public static final String LOG_TAG = "DetailActivity_TAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +42,13 @@ public class DetailActivity extends AppCompatActivity {
         }
 
 
+        // TODO look up in DB
         if(-1!=taskId) {
-            List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
-            TimeRegTask timeRegTask = timeRegTasks.get(taskId);
+            MySQLiteHelper db = new MySQLiteHelper(this);
+            TimeRegTask timeRegTask =db.getTimeReg(taskId);
+
+            //Log.d(LOG_TAG, "DB taskId "+name.getId() + " "+name.getTaskNumber() +" " +name.getTaskName());
+
 
             EditText taskNumber = (EditText) findViewById(R.id.taskNumber);
             taskNumber.setText(timeRegTask.getTaskNumber());
@@ -86,25 +93,28 @@ public class DetailActivity extends AppCompatActivity {
 
             // 2. tilføje til global liste
             if (taskName != null && taskHours != null && taskHours.length() > 0 && taskNumber != null) {
+                MySQLiteHelper db = new MySQLiteHelper(this);
                 TimeRegTask newTimeRegTask = new TimeRegTask();
-                setParams(taskNumber, taskName, taskHours, taskDescription, newTimeRegTask);
+                setParams(taskNumber, taskName, taskHours, taskDescription, seletedDateAsStr, newTimeRegTask);
 
 
-                List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
+               // List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
 
+                // taskId = index
+                // hvis taskId er der ikke valgt en og den næste i listen vælges
                 if (-1==taskId) {
-                    timeRegTasks.add(newTimeRegTask);
-                } else {
-                    TimeRegTask timeRegTask = timeRegTasks.get(taskId);
+                    db.addTimeReg(newTimeRegTask);
 
+
+                } else {
+                    // TODO DB update
+                    TimeRegTask timeRegTask =  db.getTimeReg(taskId);
                     setParams(taskNumber, taskName, taskHours, taskDescription, timeRegTask);
-                    timeRegTasks.get(taskId).setAdditionInfomation(timeRegTask.getAdditionInfomation());
-                    timeRegTasks.get(taskId).setHours(timeRegTask.getHours());
-                    timeRegTasks.get(taskId).setTaskName(timeRegTask.getTaskName());
-                    timeRegTasks.get(taskId).setTaskNumber(timeRegTask.getTaskNumber());
+                    db.updateTimeReg(timeRegTask);
+
                 }
 
-                Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
+              //  Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
             }
 
             Intent intent = new Intent(this, MainActivity.class);
@@ -114,10 +124,10 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         if (id == R.id.action_delete) {
-            List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
+            MySQLiteHelper db = new MySQLiteHelper(this);
+            TimeRegTask timeRegTask =  db.getTimeReg(taskId);
+            db.deleteTimeReg(timeRegTask);
 
-            timeRegTasks.remove(taskId);
-            Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, seletedDateAsStr);
             startActivity(intent);
@@ -130,7 +140,17 @@ public class DetailActivity extends AppCompatActivity {
     private void setParams(EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, TimeRegTask newTimeRegTask) {
         newTimeRegTask.setTaskNumber(taskNumber.getText().toString());
         newTimeRegTask.setTaskName(taskName.getText().toString());
-        newTimeRegTask.setHours(Double.parseDouble(taskHours.getText().toString()));
+        newTimeRegTask.setHours(taskHours.getText().toString());
+        if (taskDescription != null) {
+            newTimeRegTask.setAdditionInfomation(taskDescription.getText().toString());
+        }
+    }
+
+    private void setParams(EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, String seletedDateAsStr,TimeRegTask newTimeRegTask) {
+        newTimeRegTask.setTaskNumber(taskNumber.getText().toString());
+        newTimeRegTask.setTaskName(taskName.getText().toString());
+        newTimeRegTask.setHours(taskHours.getText().toString());
+        newTimeRegTask.setDate(seletedDateAsStr);
         if (taskDescription != null) {
             newTimeRegTask.setAdditionInfomation(taskDescription.getText().toString());
         }

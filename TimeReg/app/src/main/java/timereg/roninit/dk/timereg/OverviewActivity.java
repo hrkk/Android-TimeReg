@@ -38,6 +38,9 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -114,6 +117,7 @@ public class OverviewActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //http://www.codeproject.com/Articles/986574/Android-iText-Pdf-Example
     private class PreviewPdfTask extends AsyncTask<String, Void, String> {
         File myFile;
         String seletedDateAsStr;
@@ -233,24 +237,28 @@ public class OverviewActivity extends AppCompatActivity {
             HttpEntity<RequestObject> request = new HttpEntity<>(rq);
             String filename = restTemplate.postForObject("http://www.roninit.dk:81/timeReg/makePdf", request, String.class);
             Log.i(LOG_TAG, "postForObject called on server "+filename);
-            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName="+filename, String.class);
-
-            // changes status
+            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName=" + filename, String.class);
 
 
-            List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
-            if(weekList!=null)
-                for(TimeRegTask e : weekList) {
-                    e.setSubmitDate(timeStamp);
-                }
 
             return "response";
         }
 
         @Override
         protected void onPostExecute(String result) {
-            // changes state
-            // TODO
+
+            // changes status
+
+            MySQLiteHelper db = new MySQLiteHelper(rootView.getContext());
+
+            List<TimeRegTask> weekList = getWeekList(seletedDateAsStr);
+            if(weekList!=null)
+                for(TimeRegTask e : weekList) {
+                    e.setSubmitDate(timeStamp);
+                    // lets update all obj in DB
+                    db.updateTimeReg(e);
+                }
+
             TextView textView = (TextView) rootView.findViewById(R.id.ow_submitStatus);
             textView.setText("Godkent "+timeStamp);
             Toast.makeText(getBaseContext(), "Timer er godkendt", Toast.LENGTH_SHORT).show();
@@ -261,11 +269,13 @@ public class OverviewActivity extends AppCompatActivity {
     private RequestObject createRequestObject(String seletedDateAsStr, String name) {
         // first we create the file
         RequestObject rq = new RequestObject();
-        rq.startDate = Globals.getInstance().getPeriodeStartDate(seletedDateAsStr);
-        rq.endDate = Globals.getInstance().getPeriodeEndDate(seletedDateAsStr);
+        rq.startDate = Util.getPeriodeStartDate(seletedDateAsStr);
+        rq.endDate = Util.getPeriodeEndDate(seletedDateAsStr);
         rq.name = name;
-        rq.totalHours = "" + Globals.getInstance().getWeekTotal(seletedDateAsStr);
-        List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
+
+        List<TimeRegTask> weekList = getWeekList(seletedDateAsStr);
+        rq.totalHours = "" + Util.getDayTotalHours(weekList);
+
         if (weekList != null)
             for (TimeRegTask e : weekList) {
                 SaveTask saveTask1 = new SaveTask();
@@ -279,5 +289,27 @@ public class OverviewActivity extends AppCompatActivity {
         return rq;
     }
 
+    public List<TimeRegTask> getWeekList(String dateAsStr) {
+        MySQLiteHelper db = new MySQLiteHelper(this);
+        Calendar endDate = Util.getPeriodeEndDateAsCal(dateAsStr);
+        // 1 meaning Monday and 7 meaning Sunday
+        int dayOfWeek = endDate.get(Calendar.DAY_OF_WEEK) -1;
+        if (dayOfWeek == 0)
+            dayOfWeek = 7;
 
+        List<TimeRegTask> weekList= new ArrayList<TimeRegTask>();
+        while(dayOfWeek>=1) {
+            String formattedDate = DateUtil.getFormattedDate(endDate);
+            Log.d("getWeekList", "Working on date " + formattedDate);
+            weekList.addAll(db.getAllTimeRegByDate(formattedDate));
+
+            endDate.add(Calendar.DAY_OF_YEAR, -1);
+            dayOfWeek= endDate.get(Calendar.DAY_OF_WEEK) -1;
+            if (dayOfWeek == 0) {
+                break;
+            }
+        }
+        Collections.reverse(weekList);
+        return weekList;
+    }
 }

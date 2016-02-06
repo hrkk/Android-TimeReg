@@ -1,25 +1,43 @@
 package timereg.roninit.dk.timereg;
 
+import java.math.BigDecimal;
+
 /**
  * Created by kasper on 05/01/2016.
  */
 public class TimeRegTask {
-    private String id;
+    private int id; // db
+    private String taskId;
+    private String company;
     private String taskNumber;
     private String taskName;
-    private double hours;
+    private String hours;
     private String additionInfomation;
     private String date;
-
     private String submitDate;
 
-
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 
     public String getTaskNumber() {
@@ -38,11 +56,15 @@ public class TimeRegTask {
         this.taskName = taskName;
     }
 
-    public double getHours() {
+    public String getHours() {
         return hours;
     }
 
-    public void setHours(double hours) {
+    public BigDecimal getHoursAsBigDecimal() {
+        return new BigDecimal(hours);
+    }
+
+    public void setHours(String hours) {
         this.hours = hours;
     }
 

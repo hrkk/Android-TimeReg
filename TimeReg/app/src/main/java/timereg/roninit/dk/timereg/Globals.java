@@ -58,130 +58,22 @@ public class Globals {
         double weekTotal = 0;
         for(List<TimeRegTask> listE : taskListList){
             for(TimeRegTask e : listE){
-                weekTotal += e.getHours();
+                weekTotal += e.getHoursAsBigDecimal().doubleValue();
             }
         }
 
         return weekTotal;
     }
 
-    public double getWeekTotal(String dateAsStr) {
-        Date date = DateUtil.createDate(dateAsStr);
-
-        double weekSum =0;
-        
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-
-        // 1 meaning Monday and 7 meaning Sunday
-        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) -1;
-        if (dayOfWeek == 0)
-            dayOfWeek = 7;
-
-        // finder ud af hvor mange der skal tilføjes før vi er på søndag
-        while(dayOfWeek != 7) {
-            cal.add(Calendar.DAY_OF_YEAR, +1);
-            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
-            if (dayOfWeek == 0)
-                dayOfWeek = 7;
-        }
-
-        while(dayOfWeek>=1) {
-            String formattedDate = DateUtil.getFormattedDate(cal);
-            Log.d(TAG, "Working on date " + DateUtil.getFormattedDate(cal));
-            weekSum += getDayTotalHours(formattedDate);
-
-            cal.add(Calendar.DAY_OF_YEAR, -1);
-            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
-            if (dayOfWeek == 0) {
-                break;
-            }
-        }
-
-        return weekSum;
-    }
-
-    public String getPeriodeEndDate(String dateAsStr) {
-
-        Calendar cal = getPeriodeEndDateAsCal(dateAsStr);
-
-        return DateUtil.getFormattedDate(cal);
-    }
-
-    public String getPeriodeStartDate(String dateAsStr) {
-        Calendar cal = getPeriodeEndDateAsCal(dateAsStr);
-        cal.add(Calendar.DAY_OF_YEAR, -7);
-        return DateUtil.getFormattedDate(cal);
-    }
 
 
-    private Calendar getPeriodeEndDateAsCal(String dateAsStr) {
-        Date date = DateUtil.createDate(dateAsStr);
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-
-
-        // 1 meaning Monday and 7 meaning Sunday
-        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) -1;
-        if (dayOfWeek == 0)
-            dayOfWeek = 7;
-
-        // finder ud af hvor mange der skal tilføjes før vi er på søndag
-        while(dayOfWeek != 7) {
-            cal.add(Calendar.DAY_OF_YEAR, +1);
-            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
-            if (dayOfWeek == 0)
-                dayOfWeek = 7;
-        }
-        return cal;
-    }
-    public List<TimeRegTask> getWeekList(String dateAsStr) {
-        Date date = DateUtil.createDate(dateAsStr);
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-
-        List<TimeRegTask> taskList = new ArrayList<>();
-        // 1 meaning Monday and 7 meaning Sunday
-        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) -1;
-        if (dayOfWeek == 0)
-            dayOfWeek = 7;
-
-        // finder ud af hvor mange der skal tilføjes før vi er på søndag
-        while(dayOfWeek != 7) {
-            cal.add(Calendar.DAY_OF_YEAR, +1);
-            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
-            if (dayOfWeek == 0)
-                dayOfWeek = 7;
-        }
-
-        while(dayOfWeek>=1) {
-            String formattedDate = DateUtil.getFormattedDate(cal);
-            Log.d(TAG, "Working on date " + DateUtil.getFormattedDate(cal));
-            List<TimeRegTask> timeRegTasks = taskMap.get(formattedDate);
-            if (timeRegTasks != null)
-                for (TimeRegTask e : timeRegTasks) {
-                    e.setDate(formattedDate);
-                    taskList.add(e);
-                }
-
-            cal.add(Calendar.DAY_OF_YEAR, -1);
-            dayOfWeek= cal.get(Calendar.DAY_OF_WEEK) -1;
-            if (dayOfWeek == 0) {
-                break;
-            }
-        }
-        Collections.reverse(taskList);
-        return taskList;
-    }
 
     private double getDayTotalHours(String dateAsStr) {
         List<TimeRegTask> taskList = taskMap.get(dateAsStr);
         double sum=0.0;
         if (taskList != null) {
             for(TimeRegTask task : taskList) {
-                sum +=task.getHours();
+                sum +=task.getHoursAsBigDecimal().doubleValue();
             }
         }
         return sum;
@@ -207,19 +99,19 @@ public class Globals {
             instance=new Globals();
             List<TimeRegTask> stringCollection = new ArrayList<>();
             TimeRegTask task1 = new TimeRegTask();
-            task1.setId("1");
+            task1.setId(1);
             task1.setTaskNumber("I1654");
             task1.setTaskName("Demo Projekt 1");
-            task1.setHours(2.5);
+            task1.setHours("2.5");
             task1.setAdditionInfomation("5 meter 1/2 tomme rør");
 
             stringCollection.add(task1);
 
             TimeRegTask task2 = new TimeRegTask();
-            task2.setId("2");
+            task2.setId(2);
             task2.setTaskNumber("U1518");
             task2.setTaskName("Demo Projekt 2");
-            task2.setHours(4.5);
+            task2.setHours("4.5");
             task2.setAdditionInfomation("11 meter jern!!!");
 
             stringCollection.add(task2);

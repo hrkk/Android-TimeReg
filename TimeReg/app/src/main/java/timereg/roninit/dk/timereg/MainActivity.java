@@ -146,10 +146,14 @@ public class MainActivity extends AppCompatActivity {
         EditText date = (EditText) findViewById(R.id.date);
         setDate(date, seletedDateAsStr);
 
-        taskList =  Globals.getInstance().getTaskMap().get(seletedDateAsStr);
+
+        MySQLiteHelper db = new MySQLiteHelper(this);
+        db.getAllTimeReg();
+        taskList =  db.getAllTimeRegByDate(seletedDateAsStr);
+
 
         TextView dayTotalHours =  (TextView) findViewById(R.id.total_hours);
-        dayTotalHours.setText("" + getDayTotalHours(taskList) + " timer");
+        dayTotalHours.setText("" + Util.getDayTotalHours(taskList) + " timer");
 
 
 
@@ -172,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
                 EditText date = (EditText) findViewById(R.id.date);
                 String dateAsString = date.getText().toString();
                 intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString);
-                intent.putExtra(DetailActivity.EXTRA_TASK_ID, position);
+                TimeRegTask seletedTimeRegTask = taskList.get(position);
+                intent.putExtra(DetailActivity.EXTRA_TASK_ID, seletedTimeRegTask.getId());
                 startActivity(intent);
             }
         });
@@ -180,16 +185,16 @@ public class MainActivity extends AppCompatActivity {
         verifyStoragePermissions(this);
 
         boolean alarmUp = (PendingIntent.getBroadcast(this, 0,
-                new Intent(this, AlarmReceiver.class),
+                new Intent("timereg.roninit.dk.timereg.MY_UNIQUE_ACTION"),
                 PendingIntent.FLAG_NO_CREATE) != null);
 
         if(alarmUp)
-            Toast.makeText(this, "alarmUp", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "alarm is UP - dont set a new one", Toast.LENGTH_SHORT).show();
 
-        if (manager == null) {
+
             // Retrieve a PendingIntent that will perform a broadcast
-            Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+            Intent alarmIntent = new Intent("timereg.roninit.dk.timereg.MY_UNIQUE_ACTION");
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             int interval = 10000;
@@ -199,18 +204,10 @@ public class MainActivity extends AppCompatActivity {
             manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
             // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
             Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
-    private static double getDayTotalHours(List<TimeRegTask> taskList) {
-        double sum=0.0;
-        if (taskList != null) {
-            for(TimeRegTask task : taskList) {
-                sum +=task.getHours();
-            }
-        }
-        return sum;
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -233,38 +230,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        if (id==R.id.action_preview) {
-
-            try {
-                createPdf();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (DocumentException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //popup window code here
-//            AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-//
-//            // set the message to display
-//            alertbox.setMessage("Sender ugens timer til server, som sender mail til Mølle med medarbejderens timer");
-//
-//            // add a neutral button to the alert box and assign a click listener
-//            alertbox.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-//
-//                // click listener on the alert box
-//                public void onClick(DialogInterface arg0, int arg1) {
-//                    // the button was clicked
-//                    //  Globals.getInstance().reset();
-//                }
-//            });
-//
-//            // show it
-//            alertbox.show();
-            return true;
-
-        }
 
         if (id == R.id.action_overview) {
             Intent intent = new Intent(this, OverviewActivity.class);
@@ -274,59 +239,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    //http://www.codeproject.com/Articles/986574/Android-iText-Pdf-Example
-    private void createPdf() throws IOException, DocumentException {
-
-
-
-     //   Environment. getExternalStoragePublicDirectory();
-
-//        myFile.createNewFile();
-
-       // String filename = "myfile.pdf";
-
-        String state = Environment.getExternalStorageState();
-        if(Environment.MEDIA_MOUNTED.equals(state)){
-           // File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-          //  File dir = new File(root.getAbsolutePath()+"/MyAppFile");
-           // if(!dir.exists()){
-           //     dir.mkdir();
-           // }
-
-            /*
-
-            File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), "pdfdemo");
-            if (!pdfFolder.exists()) {
-                pdfFolder.mkdir();
-                Log.i("LOG_TAG", "Pdf Directory created" + pdfFolder.getAbsolutePath() + " ::" + pdfFolder.getPath());
-            }
-
-            File file = new File(pdfFolder, "message2.txt");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write("hej".getBytes());
-            fileOutputStream.close();
-            Toast.makeText(getApplicationContext(), "Message saved", Toast.LENGTH_LONG).show();
-            */
-            EditText date = (EditText) findViewById(R.id.date);
-
-            String dateAsString = date.getText().toString();
-            dateAsString = dateAsString.substring(0,10);
-             ReadURLP readUrlTask = new ReadURLP();
-            // TODO get the name for shared
-            readUrlTask.setName("Kasper Odgaard");
-            readUrlTask.setDate(dateAsString);
-
-            AsyncTask<String, Void, String> execute = readUrlTask.execute();
-
-        } else {
-            Toast.makeText(getApplicationContext(), "SD card not found", Toast.LENGTH_LONG).show();
-        }
-
-    }
-
-
 
 
     private void viewPdf(File myFile){
@@ -425,11 +337,14 @@ public class MainActivity extends AppCompatActivity {
             date.setText(dateAsStr +" ("+DateUtil.getOnlyDayOfWeek(dateAsStr)+")");
             //selectedDate = cal;
             Log.d("TAG", "selectedDate= " + dateAsStr);
-            List<TimeRegTask> tasks = Globals.getInstance().getTaskMap().get(dateAsStr);
+            MySQLiteHelper db = new MySQLiteHelper(getActivity());
+            List<TimeRegTask> tasks =  db.getAllTimeRegByDate(dateAsStr);
+            /*
             if(tasks==null) {
                 tasks = new ArrayList<TimeRegTask>();
                 Globals.getInstance().getTaskMap().put(dateAsStr, tasks);
             }
+            */
 
             //arrayAdapter.notifyDataSetChanged();
 
@@ -437,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             TextView dayTotalHours =  (TextView) getActivity().findViewById(R.id.total_hours);
-            dayTotalHours.setText("" + getDayTotalHours(tasks) + " timer");
+            dayTotalHours.setText("" + Util.getDayTotalHours(tasks) + " timer");
 
             ListView listView = (ListView)  getActivity().findViewById(R.id.listView);
 
@@ -451,6 +366,7 @@ public class MainActivity extends AppCompatActivity {
          //   mainActivity.getArrayAdapter().notifyDataSetChanged();
             listView.setAdapter(arrayAdapter);
 
+            final List<TimeRegTask> finalTasks = tasks;
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -459,165 +375,12 @@ public class MainActivity extends AppCompatActivity {
                     EditText date = (EditText) getActivity().findViewById(R.id.date);
                     String dateAsString = date.getText().toString();
                     intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString );
-                    intent.putExtra(DetailActivity.EXTRA_TASK_ID, position);
+                    intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString);
+                    TimeRegTask seletedTimeRegTask = finalTasks.get(position);
+                    intent.putExtra(DetailActivity.EXTRA_TASK_ID, seletedTimeRegTask.getId());
                     startActivity(intent);
                 }
             });
-        }
-    }
-
-    private class SubmitTimeTask extends AsyncTask<String, Void, String> {
-        private String seletedDateAsStr;
-
-        private View rootView;
-        private String timeStamp;
-
-        public SubmitTimeTask(View rootView, String seletedDateAsStr) {
-            this.rootView = rootView;
-            this.seletedDateAsStr = seletedDateAsStr;
-            Date date = new Date() ;
-
-            timeStamp =   DateUtil.getFormattedDate(new Date());
-
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String filename = Globals.getInstance().getFilename();
-            RestTemplate restTemplate = new RestTemplate();
-            HttpMessageConverter stringHttpMessageConverternew = new StringHttpMessageConverter();
-            restTemplate.getMessageConverters().add(stringHttpMessageConverternew);
-
-
-            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName="+filename, String.class);
-           Log.i(LOG_TAG, "SubmitTimeTask=" + quote);
-            // changes status
-
-
-            List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
-            if(weekList!=null)
-                for(TimeRegTask e : weekList) {
-                    e.setSubmitDate(timeStamp);
-                }
-            return "response";
-        }
-        @Override
-        protected void onPostExecute(String result) {
-
-
-        }
-    }
-
-
-    private class ReadURLP extends AsyncTask<String, Void, String> {
-
-        private String seletedDateAsStr;
-        private String name;
-
-        public void setDate (String date) {
-            this.seletedDateAsStr = date;
-        }
-        public void setName ( String name) {this.name =name;}
-        // public static String URL = Constants.CONTEXT_ROOT + "/LoppemarkederAdminApp/markedItem/listJSON2";
-        File myFile;
-        @Override
-        public String doInBackground(String... urls) {
-
-            URL url = null;
-            try {
-                File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), "pdfdemo");
-                if (!pdfFolder.exists()) {
-                    pdfFolder.mkdir();
-                    Log.i(LOG_TAG, "Pdf Directory created" + pdfFolder.getAbsolutePath() + " ::" + pdfFolder.getPath());
-                }
-
-                // test
-                RestTemplate restTemplate = new RestTemplate();
-             //   HttpMessageConverter<RequestObject> messageConverter = new HttpMessageConverter<RequestObject>();
-
-                MappingJackson2HttpMessageConverter jsonHttpMessageConverter = new MappingJackson2HttpMessageConverter();
-              //  jsonHttpMessageConverter.getObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-               // restTemplate.getMessageConverters().add(jsonHttpMessageConverter);
-
-                HttpMessageConverter stringHttpMessageConverternew = new StringHttpMessageConverter();
-                restTemplate.getMessageConverters().add(stringHttpMessageConverternew);
-                //String quote = restTemplate.getForObject("http://localhost:8080/timeReg/taskList", String.class);
-                String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/taskList", String.class);
-                Log.i(LOG_TAG, "taskList=" + quote.toString());
-
-                // first we create the file
-
-              //  RestTemplate restTemplate = new RestTemplate();
-                RequestObject rq = new RequestObject();
-                rq.startDate = Globals.getInstance().getPeriodeStartDate(seletedDateAsStr);
-                rq.endDate = Globals.getInstance().getPeriodeEndDate(seletedDateAsStr);
-                rq.name = name;
-                rq.totalHours = ""+Globals.getInstance().getWeekTotal(seletedDateAsStr);
-                List<TimeRegTask> weekList = Globals.getInstance().getWeekList(seletedDateAsStr);
-                if(weekList!=null)
-                for(TimeRegTask e : weekList) {
-                    // TODO get the tasks for the periode
-                    SaveTask saveTask1 = new SaveTask();
-                    saveTask1.setDate(e.getDate());
-                    saveTask1.setDesciption(e.getAdditionInfomation());
-                    saveTask1.setHours("" + e.getHours());
-                    saveTask1.setTaskName(e.getTaskName());
-                    saveTask1.setTaskNo(e.getTaskNumber());
-                    rq.taskList.add(saveTask1);
-                }
-
-                HttpEntity<RequestObject> request = new HttpEntity<>(rq);
-                String filename = restTemplate.postForObject("http://www.roninit.dk:81/timeReg/makePdf", request, String.class);
-                Log.i(LOG_TAG, "postForObject called on server "+filename);
-                // then we read it
-
-
-
-                //Create time stamp
-               // Date date = new Date() ;
-               // String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(date);
-               // String fileName = pdfFolder + "/"+ timeStamp + ".pdf";
-                 String deviceFileName = pdfFolder + "/"+filename;
-                Log.i(LOG_TAG, "fileName "+filename);
-                Globals.getInstance().setFilename(filename);
-
-                myFile = new File(deviceFileName);
-                //
-                url = new URL("http://www.roninit.dk:81/timeReg/showImage?fileName="+filename);
-                URLConnection connection = url.openConnection();
-                InputStream inputStream = connection.getInputStream();
-                copyInputStreamToFile(inputStream, myFile);
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            return "response";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            viewPdf(myFile);
-
-        }
-
-        private void copyInputStreamToFile( InputStream in, File file ) {
-            try {
-                OutputStream out = new FileOutputStream(file);
-                byte[] buf = new byte[1024];
-                int len;
-                while((len=in.read(buf))>0){
-                    out.write(buf,0,len);
-                }
-                out.close();
-                in.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

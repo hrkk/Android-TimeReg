@@ -21,6 +21,8 @@ import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import timereg.roninit.dk.timereg.R;
@@ -70,14 +72,15 @@ public class OverviewActivityFragment extends Fragment {
 
                 String dateAsStr = parent.getItemAtPosition(position).toString().substring(0, 10);
                 Globals.getInstance().setOverviewSeletedDate(dateAsStr);
-                Log.d("TAG", "selectedDate= " + dateAsStr);
+                Log.d("spinner", "selectedDate= " + dateAsStr);
                 TextView weekTotalHours = (TextView) rootView.findViewById(R.id.ow_week_total_hours);
-                weekTotalHours.setText("" + Globals.getInstance().getWeekTotal(dateAsStr) + " timer");
-                List<TimeRegTask> tasks = Globals.getInstance().getWeekList(dateAsStr);
+                List<TimeRegTask> tasks = getWeekList(dateAsStr, rootView);
+                weekTotalHours.setText("" + Util.getDayTotalHours(tasks) + " timer");
+
 
                 TextView textView = (TextView) rootView.findViewById(R.id.ow_submitStatus);
-                if(!tasks.isEmpty())
-                    textView.setText(tasks.get(0).getSubmitDate()!= null ? " Godkent "+tasks.get(0).getSubmitDate() : "Ikke godkendt");
+                if (!tasks.isEmpty())
+                    textView.setText(tasks.get(0).getSubmitDate() != null ? " Godkent " + tasks.get(0).getSubmitDate() : "Ikke godkendt");
 
                 //    ListView listView = (ListView)  getActivity().findViewById(R.id.ow_listView);
 
@@ -91,16 +94,16 @@ public class OverviewActivityFragment extends Fragment {
                 //   mainActivity.getArrayAdapter().notifyDataSetChanged();
                 //       listView.setAdapter(arrayAdapter);
 
-             //   init(rootView);
+                //   init(rootView);
 
-                TableLayout table = (TableLayout)rootView.findViewById(R.id.lastExpensesTable);
+                TableLayout table = (TableLayout) rootView.findViewById(R.id.lastExpensesTable);
 
                 // lets clear all first
                 table.removeViews(1, table.getChildCount() - 1);
                 table.setStretchAllColumns(true);
 
 
-                for(TimeRegTask e : tasks) {
+                for (TimeRegTask e : tasks) {
 
                     TableRow tr = new TableRow(getContext());
 
@@ -118,7 +121,7 @@ public class OverviewActivityFragment extends Fragment {
                     c3.setBackgroundColor(Color.WHITE);
 
                     TextView c4 = new TextView(getContext());
-                    c4.setText(""+e.getHours());
+                    c4.setText("" + e.getHours());
                     c4.setBackgroundColor(Color.WHITE);
 
                     tr.addView(c1);
@@ -150,6 +153,29 @@ public class OverviewActivityFragment extends Fragment {
 
             }
         });
+    }
+
+    public List<TimeRegTask> getWeekList(String dateAsStr, final View rootView) {
+        MySQLiteHelper db = new MySQLiteHelper(rootView.getContext());
+        Calendar endDate = Util.getPeriodeEndDateAsCal(dateAsStr);
+        // 1 meaning Monday and 7 meaning Sunday
+        int dayOfWeek = endDate.get(Calendar.DAY_OF_WEEK) -1;
+        if (dayOfWeek == 0)
+            dayOfWeek = 7;
+        List<TimeRegTask> weekList= new ArrayList<TimeRegTask>();
+        while(dayOfWeek>=1) {
+            String formattedDate = DateUtil.getFormattedDate(endDate);
+            Log.d("getWeekList", "Working on date " + formattedDate);
+            weekList.addAll(db.getAllTimeRegByDate(formattedDate));
+
+            endDate.add(Calendar.DAY_OF_YEAR, -1);
+            dayOfWeek= endDate.get(Calendar.DAY_OF_WEEK) -1;
+            if (dayOfWeek == 0) {
+                break;
+            }
+        }
+        Collections.reverse(weekList);
+        return weekList;
     }
 
     /*
