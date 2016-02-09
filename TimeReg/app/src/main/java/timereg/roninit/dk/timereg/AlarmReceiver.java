@@ -19,13 +19,13 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // For our recurring task, we'll just display a message
-     //   Toast.makeText(context, "I'm running waked up", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "AlarmReceiver -> I'm running waked up", Toast.LENGTH_SHORT).show();
         PendingIntent pi = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
         //Resources r = getResources();
         MySQLiteHelper db  = new MySQLiteHelper(context);
 
         List<String> alarmDates =  Util.buildPeriodeDropdownList();
-
+        alarmDates.remove(0); // remove current periode..
         String alarmDatePeriode=null;
         for(String e: alarmDates) {
             List<TimeRegTask> allTimeRegByDate = db.getAllTimeRegByDate(e.substring(10));

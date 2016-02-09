@@ -188,23 +188,35 @@ public class MainActivity extends AppCompatActivity {
         verifyStoragePermissions(this);
 
         boolean alarmUp = (PendingIntent.getBroadcast(this, 0,
-                new Intent("timereg.roninit.dk.timereg.MY_UNIQUE_ACTION"),
-                PendingIntent.FLAG_NO_CREATE) != null);
+                new Intent(this, AlarmReceiver.class),
+                0) != null);
 
-        if(alarmUp) {
-            Log.d(LOG_TAG, "alarm is UP - dont set a new one");
-        } else {
+
+
+
+      //  manager.cancel(pendingIntent);
+
+
+       // if(alarmUp) {
+       //    Toast.makeText(this, "alarm is UP - dont set a new one", Toast.LENGTH_SHORT).show();
+      //      Toast.makeText(this, "alarm is UP - dont set a new one", Toast.LENGTH_SHORT).show();
+      //      Log.d(LOG_TAG, "alarm is UP - dont set a new one");
+      // } else {
             // Retrieve a PendingIntent that will perform a broadcast
-            Intent alarmIntent = new Intent("timereg.roninit.dk.timereg.MY_UNIQUE_ACTION");
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+            //PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+            Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
             AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
 
             // http://blog.masconsult.eu/blog/2014/01/17/scheduling-alarms/
             manager.setRepeating(AlarmManager.RTC_WAKEUP, AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, pendingIntent);
-            // manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+            //int interval = 10000;
+             //manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
             Log.d(LOG_TAG, "Setting alarm");
-        }
+        //    Toast.makeText(this, "Setting alarm", Toast.LENGTH_SHORT).show();
+        //}
     }
 
 
