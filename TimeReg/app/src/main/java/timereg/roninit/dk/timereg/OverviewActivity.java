@@ -1,5 +1,6 @@
 package timereg.roninit.dk.timereg;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,6 +49,7 @@ import timereg.roninit.dk.timereg.R;
 
 public class OverviewActivity extends AppCompatActivity {
     public static final String LOG_TAG = "OverviewActivity_TAG";
+    ProgressDialog progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,12 @@ public class OverviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_overview);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // prepare for a progress bar dialog
+        progressBar = new ProgressDialog(this);
+        progressBar.setCancelable(true);
+        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressBar.setMessage("Sender data til server ...");
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -86,7 +94,7 @@ public class OverviewActivity extends AppCompatActivity {
 
         if("".equals(prefName) || "".equals(prefIdNumber) || "".equals(prefEmail) || "".equals(prefServerApi)){
             Toast.makeText(this,
-                    "Felter i \"Mine oplysninger\" skal udfyldes før du kan preview pdf og godkende timer - DENNE HER VERSION LADER DIG FORSÆTTE",
+                    "Felter i \"Mine oplysninger\" skal udfyldes før du kan preview pdf og godkende timer",
                     Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, InfoActivity.class);
             startActivity(intent);
@@ -239,6 +247,7 @@ public class OverviewActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             seletedDateAsStr = Globals.getInstance().getOverviewSeletedDate();
+            progressBar.show();
         }
 
         @Override
@@ -277,6 +286,7 @@ public class OverviewActivity extends AppCompatActivity {
             TextView textView = (TextView) rootView.findViewById(R.id.ow_submitStatus);
             textView.setText("Godkent "+timeStamp);
             Toast.makeText(getBaseContext(), "Timer er godkendt", Toast.LENGTH_SHORT).show();
+            progressBar.dismiss();
         }
     }
 
