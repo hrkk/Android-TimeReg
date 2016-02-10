@@ -304,15 +304,15 @@ public class MainActivity extends AppCompatActivity {
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 
-        // MainActivity mainActivity;
+        MainActivity mainActivity;
 
         @Override
         public void onAttach(Activity activity)
         {
-            Log.d("TAG", "onAttach -> activity " + activity.getClass());
-
-          //  mainActivity = (MainActivity) activity;
             super.onAttach(activity);
+            Log.d("TAG", "onAttach -> activity " + activity.getClass());
+            mainActivity = (MainActivity) activity;
+
         }
 
         @Override
@@ -383,14 +383,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Log.d("TAG", "Item at " + position + " clicked with id " + id);
-                    Intent intent = new Intent(getActivity().getApplicationContext(), DetailActivity.class);
-                    EditText date = (EditText) getActivity().findViewById(R.id.date);
+                    Intent intent = new Intent(mainActivity, DetailActivity.class);
+                    EditText date = (EditText) mainActivity.findViewById(R.id.date);
                     String dateAsString = date.getText().toString();
                     intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString );
                     intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString);
                     TimeRegTask seletedTimeRegTask = finalTasks.get(position);
                     intent.putExtra(DetailActivity.EXTRA_TASK_ID, seletedTimeRegTask.getId());
-                    startActivity(intent);
+                    mainActivity.startActivity(intent);
                 }
             });
         }
