@@ -37,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -150,40 +151,7 @@ public class MainActivity extends AppCompatActivity {
         setDate(date, seletedDateAsStr);
 
 
-        MySQLiteHelper db = new MySQLiteHelper(this);
-        db.getAllTimeReg();
-        taskList =  db.getAllTimeRegByDate(seletedDateAsStr);
-
-
-        TextView dayTotalHours =  (TextView) findViewById(R.id.total_hours);
-        dayTotalHours.setText("" + Util.getDayTotalHours(taskList) + " timer");
-
-
-
-        listView = (ListView) findViewById(R.id.listView);
-       // sets op task list
-        arrayAdapter
-                = new ArrayAdapter<TimeRegTask>(
-                this,
-                android.R.layout.simple_list_item_1,
-                taskList);
-
-        listView.setAdapter(arrayAdapter);
-
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(LOG_TAG, "Item at " + position + " clicked with id " + id);
-                Intent intent = new Intent(view.getContext(), DetailActivity.class);
-                EditText date = (EditText) findViewById(R.id.date);
-                String dateAsString = date.getText().toString();
-                intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString);
-                TimeRegTask seletedTimeRegTask = taskList.get(position);
-                intent.putExtra(DetailActivity.EXTRA_TASK_ID, seletedTimeRegTask.getId());
-                startActivity(intent);
-            }
-        });
+        setValues(seletedDateAsStr);
 
         verifyStoragePermissions(this);
 
@@ -298,6 +266,68 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("TAG", "List Frag Resumed");
 
+    }
+
+    public void previousDate(View view) {
+        Log.d(LOG_TAG, "previousDate called");
+        EditText date = (EditText) findViewById(R.id.date);
+        String dateAsStr = date.getText().toString();
+        DateUtil.createDate(dateAsStr);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(DateUtil.createDate(dateAsStr));
+        cal.add(Calendar.DAY_OF_YEAR, -1);
+        String previousDateAsStr = DateUtil.getFormattedDate(cal);
+        date.setText(previousDateAsStr + " ("+DateUtil.getOnlyDayOfWeek(previousDateAsStr)+")");
+        setValues(previousDateAsStr);
+    }
+
+    public void nextDate(View view) {
+        Log.d(LOG_TAG, "nextDate called");
+        EditText date = (EditText) findViewById(R.id.date);
+        String dateAsStr = date.getText().toString();
+        DateUtil.createDate(dateAsStr);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(DateUtil.createDate(dateAsStr));
+        cal.add(Calendar.DAY_OF_YEAR, +1);
+        String nextDateAsStr = DateUtil.getFormattedDate(cal);
+        date.setText(nextDateAsStr + " ("+DateUtil.getOnlyDayOfWeek(nextDateAsStr)+")");
+        setValues(nextDateAsStr);
+    }
+
+    private void setValues(String dateAsStr) {
+        MySQLiteHelper db = new MySQLiteHelper(this);
+        db.getAllTimeReg();
+        taskList =  db.getAllTimeRegByDate(dateAsStr);
+
+
+        TextView dayTotalHours =  (TextView) findViewById(R.id.total_hours);
+        dayTotalHours.setText("" + Util.getDayTotalHours(taskList) + " timer");
+
+
+        listView = (ListView) findViewById(R.id.listView);
+        // sets op task list
+        arrayAdapter
+                = new ArrayAdapter<TimeRegTask>(
+                this,
+                android.R.layout.simple_list_item_1,
+                taskList);
+
+        listView.setAdapter(arrayAdapter);
+
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(LOG_TAG, "Item at " + position + " clicked with id " + id);
+                Intent intent = new Intent(view.getContext(), DetailActivity.class);
+                EditText date = (EditText) findViewById(R.id.date);
+                String dateAsString = date.getText().toString();
+                intent.putExtra(DetailActivity.EXTRA_SELECTED_DATE, dateAsString);
+                TimeRegTask seletedTimeRegTask = taskList.get(position);
+                intent.putExtra(DetailActivity.EXTRA_TASK_ID, seletedTimeRegTask.getId());
+                startActivity(intent);
+            }
+        });
     }
 
 

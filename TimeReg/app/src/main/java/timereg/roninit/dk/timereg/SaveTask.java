@@ -6,6 +6,7 @@ package timereg.roninit.dk.timereg;
 public class SaveTask {
 
     private String date;
+    private String company;
     private String taskNo;
     private String taskName;
     private String hours;
@@ -52,6 +53,14 @@ public class SaveTask {
 
     public void setDesciption(String desciption) {
         this.desciption = desciption;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 
     @Override

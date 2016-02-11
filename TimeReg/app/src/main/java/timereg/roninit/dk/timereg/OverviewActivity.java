@@ -309,6 +309,7 @@ public class OverviewActivity extends AppCompatActivity {
                 saveTask1.setHours("" + e.getHours());
                 saveTask1.setTaskName(e.getTaskName());
                 saveTask1.setTaskNo(e.getTaskNumber());
+                saveTask1.setCompany(e.getCompany());
                 rq.taskList.add(saveTask1);
             }
         return rq;

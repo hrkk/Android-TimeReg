@@ -6,9 +6,23 @@
     tools:context="timereg.roninit.dk.timereg.MainActivityFragment"
     tools:showIn="@layout/activity_main">
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/prvious_date"
+            android:onClick="previousDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:layout_weight="0.5"
+            android:src="@android:drawable/ic_media_previous" />
+
 
         <EditText
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/date"
             style="@android:style/Widget.Holo.Spinner"
@@ -17,10 +31,21 @@
             android:inputType="date"
             android:onClick="showDatePickerDialog"
             android:textSize="20sp"
+            android:gravity="center_vertical"
+            android:layout_weight="2"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             />
 
+        <ImageButton
+            android:id="@+id/next_date"
+            android:onClick="nextDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_weight="0.5"
+            android:src="@android:drawable/ic_media_next" />
 
+        </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

@@ -37,11 +37,13 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         db = new MySQLiteHelper(this);
         if (getIntent().getExtras() != null) {
             seletedDateAsStr = getIntent().getExtras().getString(EXTRA_SELECTED_DATE);
-            seletedDateAsStr = seletedDateAsStr.substring(0,10);
+            seletedDateAsStr = seletedDateAsStr.substring(0, 10);
             taskId = getIntent().getExtras().getInt(EXTRA_TASK_ID, -1);
+            getSupportActionBar().setTitle(getIntent().getExtras().getString(EXTRA_SELECTED_DATE));
         }
 
         AutoCompleteTextView company = (AutoCompleteTextView) findViewById(R.id.company);

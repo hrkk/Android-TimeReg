@@ -205,6 +205,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         //log
         Log.d("getTimeReg(" + id + ")", timeReg.toString() +" date "+timeReg.getDate());
 
+        db.close();
         // 5. return book
         return timeReg;
     }
@@ -276,6 +277,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         if(!books.isEmpty())
             Log.d("getAllTimeReg()", books.toString()+" date "+timeReg.getDate());
 
+        db.close();
         // return books
         return books;
     }
@@ -319,6 +321,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
         Log.d("getAllTimeRegByDate("+ date +")", books.toString());
 
+        db.close();
         // return books
         return books;
     }
