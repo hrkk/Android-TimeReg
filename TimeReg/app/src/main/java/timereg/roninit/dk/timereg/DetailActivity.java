@@ -13,14 +13,16 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
 
-    public static final String EXTRA_SELECTED_DATE =  "EXTRA_SELECTED_DATE";
+    public static final String EXTRA_SELECTED_DATE = "EXTRA_SELECTED_DATE";
     public static final java.lang.String EXTRA_TASK_ID = "EXTRA_TASK_ID";
     String seletedDateAsStr;
     int taskId;
@@ -56,9 +58,9 @@ public class DetailActivity extends AppCompatActivity {
         String[] taskNumbers = Util.getAutoCompleteTaskNumber(allTimeReg).toArray(new String[0]);
         String[] taskNames = Util.getAutoCompleteTaskName(allTimeReg).toArray(new String[0]);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,companies);
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,taskNumbers);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,taskNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, companies);
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, taskNumbers);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, taskNames);
 
         // set adapter for the auto complete fields
         company.setAdapter(adapter);
@@ -70,9 +72,9 @@ public class DetailActivity extends AppCompatActivity {
         taskName.setThreshold(1);
 
         // TODO look up in DB
-        if(-1!=taskId) {
+        if (-1 != taskId) {
             MySQLiteHelper db = new MySQLiteHelper(this);
-            TimeRegTask timeRegTask =db.getTimeReg(taskId);
+            TimeRegTask timeRegTask = db.getTimeReg(taskId);
 
             //Log.d(LOG_TAG, "DB taskId "+name.getId() + " "+name.getTaskNumber() +" " +name.getTaskName());
             company.setText(timeRegTask.getCompany());
@@ -90,7 +92,7 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if (-1==taskId) {
+        if (-1 == taskId) {
             getMenuInflater().inflate(R.menu.menu_detail_new, menu);
         } else {
             getMenuInflater().inflate(R.menu.menu_detail, menu);
@@ -114,26 +116,67 @@ public class DetailActivity extends AppCompatActivity {
             EditText taskHours = (EditText) findViewById(R.id.taskHours);
             EditText taskDescription = (EditText) findViewById(R.id.taskDescription);
 
+            if (company.getText().toString().length() == 0) {
+                Toast.makeText(getApplicationContext(), "Virksomhedsnavn er ikke udfyldt.", Toast.LENGTH_LONG).show();
+                return true;
+            }
+
+            /*
+            if (taskNumber.getText().toString().length() == 0) {
+                Toast.makeText(getApplicationContext(), "Opgave nummer er ikke udfyldt.", Toast.LENGTH_LONG).show();
+                return true;
+            }
+            */
+
+            if (taskName.getText().toString().length() == 0) {
+                Toast.makeText(getApplicationContext(), "Opgave navn er ikke udfyldt.", Toast.LENGTH_LONG).show();
+                return true;
+            }
+
+            if (taskHours.getText().toString().length() == 0) {
+                Toast.makeText(getApplicationContext(), "Antal timer er ikke udfyldt.", Toast.LENGTH_LONG).show();
+                return true;
+            }
+
+            String taskHoursAsString = taskHours.getText().toString();
+            if (taskHoursAsString != null && taskHoursAsString.length() > 0) {
+                boolean modulusOk = false;
+                BigDecimal taskHoursAsDecimal = new BigDecimal(taskHoursAsString);
+                BigDecimal remainder = taskHoursAsDecimal.remainder(BigDecimal.ONE);
+                BigDecimal res = new BigDecimal("0.00");
+
+                if (remainder.equals(res) || remainder.equals(new BigDecimal("0")) ) {
+                    modulusOk = true;
+                } else {
+                    if (new BigDecimal("0.25").equals(remainder) || new BigDecimal("0.50").equals(remainder) || new BigDecimal("0.75").equals(remainder)) {
+                        modulusOk = true;
+                    }
+                }
+
+                if (!modulusOk) {
+                    Toast.makeText(getApplicationContext(), "Timer er ikke korrekt udfyldt. 15 min. = 0.25, 30 min. = 0.50, 45 min. = 0.75. Fx 7 timer og 15 min. angives 7.25", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            }
+
             // 2. tilføje til global liste
-            if (taskName != null && taskHours != null && taskHours.length() > 0 && taskNumber != null) {
+            if (company != null && company.length() > 0 && taskName != null && taskHours != null && taskHours.length() > 0) {
 
                 TimeRegTask newTimeRegTask = new TimeRegTask();
                 setParams(company, taskNumber, taskName, taskHours, taskDescription, seletedDateAsStr, newTimeRegTask);
 
-
-               // List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
+                // List<TimeRegTask> timeRegTasks = Globals.getInstance().getTaskMap().get(seletedDateAsStr);
 
                 // taskId = index
                 // hvis taskId er der ikke valgt en og den næste i listen vælges
-                if (-1==taskId) {
+                if (-1 == taskId) {
                     db.addTimeReg(newTimeRegTask);
                 } else {
-                    TimeRegTask timeRegTask =  db.getTimeReg(taskId);
+                    TimeRegTask timeRegTask = db.getTimeReg(taskId);
                     setParams(company, taskNumber, taskName, taskHours, taskDescription, timeRegTask);
                     db.updateTimeReg(timeRegTask);
                 }
-
-              //  Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
+                //  Globals.getInstance().getTaskMap().put(seletedDateAsStr, timeRegTasks);
             }
 
             Intent intent = new Intent(this, MainActivity.class);
@@ -144,7 +187,7 @@ public class DetailActivity extends AppCompatActivity {
 
         if (id == R.id.action_delete) {
             MySQLiteHelper db = new MySQLiteHelper(this);
-            TimeRegTask timeRegTask =  db.getTimeReg(taskId);
+            TimeRegTask timeRegTask = db.getTimeReg(taskId);
             db.deleteTimeReg(timeRegTask);
 
             Intent intent = new Intent(this, MainActivity.class);
@@ -156,7 +199,7 @@ public class DetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setParams(EditText company,EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, TimeRegTask newTimeRegTask) {
+    private void setParams(EditText company, EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, TimeRegTask newTimeRegTask) {
         newTimeRegTask.setCompany(company.getText().toString());
         newTimeRegTask.setTaskNumber(taskNumber.getText().toString());
         newTimeRegTask.setTaskName(taskName.getText().toString());
@@ -166,7 +209,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setParams(EditText company, EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, String seletedDateAsStr,TimeRegTask newTimeRegTask) {
+    private void setParams(EditText company, EditText taskNumber, EditText taskName, EditText taskHours, EditText taskDescription, String seletedDateAsStr, TimeRegTask newTimeRegTask) {
         newTimeRegTask.setCompany(company.getText().toString());
         newTimeRegTask.setTaskNumber(taskNumber.getText().toString());
         newTimeRegTask.setTaskName(taskName.getText().toString());
@@ -177,5 +220,3 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 }
-
-

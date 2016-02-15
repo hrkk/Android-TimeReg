@@ -14,26 +14,26 @@
         android:id="@+id/company"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Indtast virksomhedsnavn som opgaven udføres for" />
+        android:hint="@string/hintCompany" />
     <!-- projectName -->
     <AutoCompleteTextView
         android:id="@+id/taskNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Indtast opgave nummer" />
+        android:hint="@string/hintTaskNumber" />
 
     <AutoCompleteTextView
         android:id="@+id/taskName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Indtast opgave navn" />
+        android:hint="@string/hintTaskName" />
 
     <EditText
         android:id="@+id/taskHours"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="2"
-        android:hint="Indtast antal timer"
+        android:hint="@string/taskTaskHours"
         android:inputType="numberDecimal" />
 
     <EditText
@@ -41,8 +41,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Indtask beskrivelse, matrialer, etc. (flere linier)"
+        android:hint="@string/hintTaskDescription"
         android:inputType="textMultiLine" />
-
-
 </LinearLayout>

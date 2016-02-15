@@ -104,10 +104,18 @@ public class OverviewActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_ow_submit) {
+
             View rootView = this.findViewById(android.R.id.content);
             if("".equals(prefName))
                 prefName ="Not found";
-            SubmitTimeTask task = new SubmitTimeTask(prefName,rootView);
+            RequestObject rq = createRequestObject(Globals.getInstance().getOverviewSeletedDate(), prefName);
+            if(rq.taskList.isEmpty()) {
+                Toast.makeText(this,
+                        "Der skal mindst være udfyldes én tidsregistrering i perioden for at man kan godkende timer",
+                        Toast.LENGTH_LONG).show();
+                return true;
+            }
+            SubmitTimeTask task = new SubmitTimeTask(prefName,prefServerApi,rootView);
             task.execute();
 
             return true;
@@ -236,10 +244,12 @@ public class OverviewActivity extends AppCompatActivity {
         private String timeStamp;
         private String seletedDateAsStr;
         private String name;
+        private String companyId;
 
-        public SubmitTimeTask(String name, View rootView) {
+        public SubmitTimeTask(String name, String companyId, View rootView) {
             this.name = name;
             this.rootView = rootView;
+            this.companyId = companyId;
             timeStamp =   DateUtil.getFormattedDate(new Date());
         }
 
@@ -261,7 +271,7 @@ public class OverviewActivity extends AppCompatActivity {
             HttpEntity<RequestObject> request = new HttpEntity<>(rq);
             String filename = restTemplate.postForObject("http://www.roninit.dk:81/timeReg/makePdf", request, String.class);
             Log.i(LOG_TAG, "postForObject called on server "+filename);
-            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName=" + filename, String.class);
+            String quote = restTemplate.getForObject("http://www.roninit.dk:81/timeReg/submitToDropbox?fileName=" + filename+"&companyId="+companyId, String.class);
 
 
 

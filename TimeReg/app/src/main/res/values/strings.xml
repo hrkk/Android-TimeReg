@@ -18,4 +18,9 @@
     <string name="overview">Oversigt</string>
     <string name="country_prompt">Choose a country</string>
     <string name="week_total_regs">Ugens tidsregistreringer</string>
+    <string name="hintCompany">Indtast virksomhedsnavn som opgaven udføres for</string>
+    <string name="hintTaskNumber">Indtast opgave nummer</string>
+    <string name="hintTaskName">Indtast opgave navn</string>
+    <string name="taskTaskHours">Indtast antal timer</string>
+    <string name="hintTaskDescription">Indtast beskrivelse, matrialer, etc. (flere linier)</string>
 </resources>
