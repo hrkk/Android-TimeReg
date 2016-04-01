@@ -23,4 +23,5 @@
     <string name="hintTaskName">Indtast opgave navn</string>
     <string name="taskTaskHours">Indtast antal timer</string>
     <string name="hintTaskDescription">Indtast beskrivelse, matrialer, etc. (flere linier)</string>
+    <string name="companyLabel">Virksomhed</string>
 </resources>

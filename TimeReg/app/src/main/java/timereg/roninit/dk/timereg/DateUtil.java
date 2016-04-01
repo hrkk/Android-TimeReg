@@ -10,6 +10,7 @@ import android.util.Log;
 
 public class DateUtil {
     private static final String DATE_FORMAT = "dd-MM-yyyy";
+    private static final String DATE_FORMAT_WEEKDAY = "EEEEEEE-MM-yyyy";
     private static final String ONLY_WEEKDAY_FORMAT = "EEEEEEE";
     private static final String DATE_FORMAT_LONG = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
@@ -27,6 +28,10 @@ public class DateUtil {
 
     public static String getOnlyDayOfWeek(String dateAsString) {
         SimpleDateFormat sdf = new SimpleDateFormat(ONLY_WEEKDAY_FORMAT);
+        return sdf.format( createDate(dateAsString));
+    }
+    public static String getFormattedDateWithWeekDay(String dateAsString) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_WEEKDAY);
         return sdf.format( createDate(dateAsString));
     }
 

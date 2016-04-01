@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             //int interval = 10000;
              //manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
             Log.d(LOG_TAG, "Setting alarm");
-        //    Toast.makeText(this, "Setting alarm", Toast.LENGTH_SHORT).show();
+         //   Toast.makeText(this, "Setting alarm", Toast.LENGTH_SHORT).show();
         //}
     }
 

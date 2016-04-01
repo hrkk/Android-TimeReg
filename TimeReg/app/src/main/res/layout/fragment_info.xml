@@ -98,7 +98,7 @@
             android:gravity="start"
             android:layout_weight="1"
             android:textSize="20sp"
-            android:text="Api-key"
+            android:text="@string/companyLabel"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             />
 

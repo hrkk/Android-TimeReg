@@ -44,6 +44,10 @@ public class TimeRegTask {
         return taskNumber;
     }
 
+    public String getTaskNumberAndName() {
+        return String.format("%s-%s", getTaskNumber(), getTaskName());
+    }
+
     public void setTaskNumber(String taskNumber) {
         this.taskNumber = taskNumber;
     }

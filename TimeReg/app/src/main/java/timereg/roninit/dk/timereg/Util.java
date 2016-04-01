@@ -5,8 +5,11 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kasper on 06/02/2016.
@@ -18,13 +21,15 @@ public class Util {
         List<String> res = new ArrayList<>(8);
 
         Calendar lastdayInWeek = getLastdayInWeek(Calendar.getInstance().getTime());
+        lastdayInWeek.set(Calendar.HOUR, 0);
 
-        for(int i=0; i< 8; i++) {
+        for(int i=0; i< 9; i++) {
             String firstDayInWeekAsString = getPeriodeStartDate(DateUtil.getFormattedDate(lastdayInWeek));
             String lastDayInWeekAsString = getPeriodeEndDate(DateUtil.getFormattedDate(lastdayInWeek));
 
             res.add(String.format("%s - %s", firstDayInWeekAsString, lastDayInWeekAsString));
-            lastdayInWeek.add(Calendar.DAY_OF_YEAR, -8);
+            lastdayInWeek.add(Calendar.DAY_OF_YEAR, -7);
+            System.out.println("lastdayInWeekDate "+DateUtil.getFormattedDate(lastdayInWeek));
 
         }
         return res;
@@ -51,6 +56,29 @@ public class Util {
             }
         }
         return sum;
+    }
+
+    public static Map<String, List<TimeRegTask>> splitTimeRegs(List<TimeRegTask> taskList) {
+        // lets spilt into maps pr task
+
+        Map<String, List<TimeRegTask>> map = new HashMap<String, List<TimeRegTask>>();
+        if (taskList != null) {
+            for (TimeRegTask e : taskList) {
+
+                if(map.containsKey(e.getTaskNumberAndName())) {
+                    List<TimeRegTask> timeRegTasks = map.get(e.getTaskNumberAndName());
+                    timeRegTasks.add(e);
+                } else {
+                    List<TimeRegTask> newList = new ArrayList<>();
+                    newList.add(e);
+                    map.put(e.getTaskNumberAndName(), newList);
+                }
+            }
+        }
+
+      return map;
+
+
     }
 
     public static List<String> getAutoCompleteCompany( List<TimeRegTask> allTimeReg ) {
