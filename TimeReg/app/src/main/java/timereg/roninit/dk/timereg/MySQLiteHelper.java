@@ -33,14 +33,17 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     private static final String KEY_TASK_INFORMATION = "infomation";
     private static final String KEY_TASK_DATE = "date";
     private static final String KEY_TASK_SUBMIT_DATE = "submitdate";
+    private static final String KEY_TASK_START_TIME = "starttime";
+    private static final String KEY_TASK_END_TIME = "endtime";
+    private static final String KEY_TASK_BREAK_TIME = "breaktime";
 
 
     private static final String[] COLUMNS = {KEY_ID,KEY_TITLE,KEY_AUTHOR};
     private static final String[] COLUMNS_TIME_REG = {KEY_ID, KEY_TASK_ID, KEY_TASK_COMPANY,KEY_TASK_NUMBER,
-            KEY_TASK_NAME,KEY_TASK_HOURS,KEY_TASK_INFORMATION, KEY_TASK_DATE,KEY_TASK_SUBMIT_DATE};
+            KEY_TASK_NAME,KEY_TASK_HOURS,KEY_TASK_INFORMATION, KEY_TASK_DATE,KEY_TASK_SUBMIT_DATE, KEY_TASK_START_TIME, KEY_TASK_END_TIME, KEY_TASK_BREAK_TIME};
 
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     // Database Name
     private static final String DATABASE_NAME = "TimeRegDB";
 
@@ -66,7 +69,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 "hours TEXT, "+
                 "infomation TEXT, "+
                 "date TEXT, "+
-                "submitdate TEXT )";
+                "submitdate TEXT, " +
+                "starttime TEXT, "+
+                "endtime TEXT, "+
+                "breaktime TEXT )";
         // create books table
        // db.execSQL(CREATE_BOOK_TABLE);
 
@@ -77,10 +83,19 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older books table if existed
         //db.execSQL("DROP TABLE IF EXISTS books");
+     //   List<TimeRegTask> allTimeRegV1 = getAllTimeRegV1();
         db.execSQL("DROP TABLE IF EXISTS timereg");
 
         // create fresh books table
         this.onCreate(db);
+/*
+        for (TimeRegTask e : allTimeRegV1) {
+            e.setStartTime("00:00");
+            e.setEndTime(e.getHours());
+            e.setBreakTime("00:00");
+            addTimeReg(e);
+        }
+        */
     }
 
     /*
@@ -123,6 +138,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         values.put(KEY_TASK_INFORMATION, timeReg.getAdditionInfomation()); // get author
         values.put(KEY_TASK_DATE, timeReg.getDate()); // get author
         values.put(KEY_TASK_SUBMIT_DATE, timeReg.getSubmitDate()); // get author
+        values.put(KEY_TASK_START_TIME, timeReg.getStartTime()); // get author
+        values.put(KEY_TASK_END_TIME, timeReg.getEndTime()); // get author
+        values.put(KEY_TASK_BREAK_TIME, timeReg.getBreakTime()); // get author
 
         // 3. insert
         db.insert(TABLE_TIME_REG, // table
@@ -201,6 +219,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         timeReg.setAdditionInfomation(cursor.getString(6));
         timeReg.setDate(cursor.getString(7));
         timeReg.setSubmitDate(cursor.getString(8));
+        timeReg.setStartTime(cursor.getString(9));
+        timeReg.setEndTime(cursor.getString(10));
+        timeReg.setBreakTime(cursor.getString(11));
 
         //log
         Log.d("getTimeReg(" + id + ")", timeReg.toString() +" date "+timeReg.getDate());
@@ -268,6 +289,48 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 timeReg.setAdditionInfomation(cursor.getString(6));
                 timeReg.setDate(cursor.getString(7));
                 timeReg.setSubmitDate(cursor.getString(8));
+                timeReg.setStartTime(cursor.getString(9));
+                timeReg.setEndTime(cursor.getString(10));
+                timeReg.setBreakTime(cursor.getString(11));
+
+                // Add book to books
+                books.add(timeReg);
+            } while (cursor.moveToNext());
+        }
+
+        if(!books.isEmpty())
+            Log.d("getAllTimeReg()", books.toString()+" date "+timeReg.getDate());
+
+        db.close();
+        // return books
+        return books;
+    }
+
+    public List<TimeRegTask> getAllTimeRegV1() {
+        List<TimeRegTask> books = new LinkedList<TimeRegTask>();
+
+        // 1. build the query
+        String query = "SELECT  * FROM " + TABLE_TIME_REG;
+
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        // 3. go over each row, build book and add it to list
+        TimeRegTask timeReg = null;
+        if (cursor.moveToFirst()) {
+            do {
+                timeReg = new TimeRegTask();
+                timeReg.setId(Integer.parseInt(cursor.getString(0)));
+                timeReg.setTaskId(cursor.getString(1));
+                timeReg.setCompany(cursor.getString(2));
+                timeReg.setTaskNumber(cursor.getString(3));
+                timeReg.setTaskName(cursor.getString(4));
+                timeReg.setHours(cursor.getString(5));
+                timeReg.setAdditionInfomation(cursor.getString(6));
+                timeReg.setDate(cursor.getString(7));
+                timeReg.setSubmitDate(cursor.getString(8));
+
 
                 // Add book to books
                 books.add(timeReg);
@@ -313,6 +376,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 timeReg.setAdditionInfomation(cursor.getString(6));
                 timeReg.setDate(cursor.getString(7));
                 timeReg.setSubmitDate(cursor.getString(8));
+                timeReg.setStartTime(cursor.getString(9));
+                timeReg.setEndTime(cursor.getString(10));
+                timeReg.setBreakTime(cursor.getString(11));
 
                 // Add book to books
                 books.add(timeReg);
@@ -367,6 +433,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         values.put(KEY_TASK_INFORMATION, timeReg.getAdditionInfomation()); // get author
         values.put(KEY_TASK_DATE, timeReg.getDate()); // get author
         values.put(KEY_TASK_SUBMIT_DATE, timeReg.getSubmitDate()); // get author
+        values.put(KEY_TASK_START_TIME, timeReg.getStartTime()); // get author
+        values.put(KEY_TASK_END_TIME, timeReg.getEndTime()); // get author
+        values.put(KEY_TASK_BREAK_TIME, timeReg.getBreakTime()); // get author
 
         // 3. updating row
         int i = db.update(TABLE_TIME_REG, //table

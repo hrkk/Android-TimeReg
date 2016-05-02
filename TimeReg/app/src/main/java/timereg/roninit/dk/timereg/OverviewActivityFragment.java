@@ -4,6 +4,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -22,6 +26,11 @@ import android.widget.Toast;
 
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
+
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,6 +49,11 @@ import timereg.roninit.dk.timereg.R;
  * A placeholder fragment containing a simple view.
  */
 public class OverviewActivityFragment extends Fragment {
+    public static final String LOG_TAG = "OverviewActivityF_TAG";
+    public static final String OW_TYPE = "ov_type";
+    public static final String OW_TYPE_WEEKLY = "WEEKLY";
+    public static final String OW_TYPE_MONTHLY = "MONTHLY";
+
 
     private Spinner spinner2;
     private View rootView;
@@ -53,25 +67,58 @@ public class OverviewActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_overview, container, false);
        // lm = (LinearLayout) rootView.findViewById(R.id.linearMain);
-        addItemsOnSpinner2(rootView);
-        addListenerOnSpinnerItemSelection(rootView);
+        String type = "WEEKLY";
+        if (getActivity().getIntent().getExtras() != null) {
+            type = getActivity().getIntent().getExtras().getString(OW_TYPE);
+        }
+
+        addItemsOnSpinner2(rootView, type);
+        addListenerOnSpinnerItemSelection(rootView, type);
+
         return rootView;
     }
 
     // add items into spinner dynamically
-    public void addItemsOnSpinner2( View rootView ) {
+    public void addItemsOnSpinner2( View rootView, String type ) {
+
 
         spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
-        List<String> list = Util.buildPeriodeDropdownList();
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getContext(),
-                android.R.layout.simple_spinner_item, list);
+                android.R.layout.simple_spinner_item, Util.buildPeriodeDropdownList());
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner2.setAdapter(dataAdapter);
+
+        Spinner spinner3 = (Spinner) rootView.findViewById(R.id.spinner3);
+        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<String>(getContext(),
+                android.R.layout.simple_spinner_item, Util.buildMontlyPeriodeDropdownList());
+        dataAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner3.setAdapter(dataAdapter2);
+
+
+        if ("WEEKLY".equals(type)) {
+            rootView.findViewById(R.id.spinner2).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.spinner3).setVisibility(View.GONE);
+            TextView totalHoursLabel = (TextView) rootView.findViewById(R.id.ow_week_total_hours_label);
+            totalHoursLabel.setText(R.string.overview_label_weekly);
+
+            LinearLayout ll =(LinearLayout) rootView.findViewById(R.id.ovierview_ll_status);
+            ll.setVisibility(View.VISIBLE);
+        }
+        else if ("MONTHLY".equals(type)) {
+            rootView.findViewById(R.id.spinner3).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.spinner2).setVisibility(View.GONE);
+            TextView totalHoursLabel = (TextView) rootView.findViewById(R.id.ow_week_total_hours_label);
+            totalHoursLabel.setText(R.string.overview_label_montly);
+            LinearLayout ll =(LinearLayout) rootView.findViewById(R.id.ovierview_ll_status);
+            ll.setVisibility(View.GONE);
+        }
     }
 
-
-    public void addListenerOnSpinnerItemSelection(final View rootView ) {
-        spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
+    public void addListenerOnSpinnerItemSelection(final View rootView, final String type ) {
+        if (OverviewActivityFragment.OW_TYPE_WEEKLY.equals(type))
+            spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
+        else if (OverviewActivityFragment.OW_TYPE_MONTHLY.equals(type))
+            spinner2 = (Spinner) rootView.findViewById(R.id.spinner3);
         spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -84,12 +131,18 @@ public class OverviewActivityFragment extends Fragment {
                 Globals.getInstance().setOverviewSeletedDate(dateAsStr);
                 Log.d("spinner", "selectedDate= " + dateAsStr);
                 TextView weekTotalHours = (TextView) rootView.findViewById(R.id.ow_week_total_hours);
-                List<TimeRegTask> tasks = getWeekList(dateAsStr, rootView);
+
+                List<TimeRegTask> tasks = null;
+                if ("WEEKLY".equals(type))
+                    tasks = getWeekList(dateAsStr, rootView);
+                else if ("MONTHLY".equals(type))
+                    tasks = getMontlyList(dateAsStr, rootView);
                 Collection<List<TimeRegTask>> collection = getWeekCompanyLists(tasks);
                 weekTotalHours.setText("" + Util.getDayTotalHours(tasks) + " timer");
 
 
                 LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.ow_sw_linearlayout);
+                linearLayout.removeAllViews();
 
                 TextView textView = (TextView) rootView.findViewById(R.id.ow_submitStatus);
                 if (!tasks.isEmpty())
@@ -110,6 +163,8 @@ public class OverviewActivityFragment extends Fragment {
                     TextView product = new TextView(rootView.getContext());
                     product.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
                     product.setText("Virksomhed: ");
+                   // product.setTextColor();
+
                     ll.addView(product);
 
                     // Create TextView
@@ -138,20 +193,24 @@ public class OverviewActivityFragment extends Fragment {
 
                     TextView c1 = new TextView(getContext());
                     c1.setText("Dato");
-                    c1.setBackgroundColor(Color.WHITE);
+                    c1.setTypeface(null, Typeface.BOLD);
+                    //c1.setTextColor(Color.parseColor("#FFFFFF"));
+               //     c1.setBackgroundColor(Color.WHITE);
 
                     TextView c2 = new TextView(getContext());
                     c2.setText("Opg. nr. og navn");
-                    c2.setBackgroundColor(Color.WHITE);
-                    c2.setPadding(5,0,5,0);
+                    c2.setTypeface(null, Typeface.BOLD);
+                //    c2.setBackgroundColor(Color.WHITE);
+                    c2.setPadding(5, 0, 5, 0);
                     c2.setMaxLines(10);
                     c2.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));
 
                     TextView c3 = new TextView(getContext());
                     c3.setText("Timer");
+                    c3.setTypeface(null, Typeface.BOLD);
                     c2.setPadding(0, 0, 20, 0);
                     c3.setGravity(Gravity.RIGHT);
-                    c3.setBackgroundColor(Color.WHITE);
+                  //  c3.setBackgroundColor(Color.WHITE);
 
 //                    TextView c4 = new TextView(getContext());
 //                    c4.setText("Beskrivelse");
@@ -212,11 +271,15 @@ public class OverviewActivityFragment extends Fragment {
                     TableRow hoursTotal = new TableRow(getContext());
                     TextView c12 = new TextView(getContext());
                     c12.setText("Timer i alt:");
-                    c12.setBackgroundColor(Color.WHITE);
+                   // c12.setBackgroundColor(Color.WHITE);
                     hoursTotal.addView(c12);
                     TextView c13 = new TextView(getContext());
-                    c13.setText("" + Util.getDayTotalHours(timeRegTasks));
-                    c13.setBackgroundColor(Color.WHITE);
+                    SpannableString spanString = new SpannableString("" + Util.getDayTotalHours(timeRegTasks));
+                    spanString.setSpan(new UnderlineSpan(), 0, spanString.length(), 0);
+
+                    c13.setText(spanString);
+                    //c13.setTypeface(null, Typeface.BOLD);
+                   // c13.setBackgroundColor(Color.WHITE);
                     c13.setGravity(Gravity.RIGHT);
                     hoursTotal.addView(c13);
                     table2.addView(hoursTotal, new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -224,7 +287,14 @@ public class OverviewActivityFragment extends Fragment {
                     // add empty row
                     tr = new TableRow(getContext());
                     c1 = new TextView(getContext());
-                    c1.setText("Timer i alt inddelt efter opgave:");
+
+                     spanString = new SpannableString("Timer i alt inddelt efter opgave:");
+                   // spanString.setSpan(new UnderlineSpan(), 0, spanString.length(), 0);
+                  //  spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
+                  //  spanString.setSpan(new StyleSpan(Typeface.ITALIC), 0, spanString.length(), 0);
+
+                    c1.setText(spanString);
+                    c1.setTypeface(null, Typeface.ITALIC);
                     tr.addView(c1);
                     table2.addView(tr, new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
@@ -237,12 +307,14 @@ public class OverviewActivityFragment extends Fragment {
 
                         TextView c15 = new TextView(getContext());
                         c15.setText(e);
-                        c15.setBackgroundColor(Color.WHITE);
+                      //  c15.setMaxLines(10);
+                        c15.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));
+                      //  c15.setBackgroundColor(Color.WHITE);
                         tr3.addView(c15);
 
                         TextView c14 = new TextView(getContext());
                         c14.setText("" + Util.getDayTotalHours(map.get(e)));
-                        c14.setBackgroundColor(Color.WHITE);
+                      //  c14.setBackgroundColor(Color.WHITE);
                         c14.setGravity(Gravity.RIGHT);
                         //   c13.setTe
                         tr3.addView(c14);
@@ -434,6 +506,30 @@ public class OverviewActivityFragment extends Fragment {
         Collection<List<TimeRegTask>> values = map.values();
 
         return values;
+    }
+
+
+    public List<TimeRegTask> getMontlyList(String firstDateAsStr, final View rootView) {
+        MySQLiteHelper db = new MySQLiteHelper(rootView.getContext());
+
+        Calendar firstDate = Util.getPeriodeEndDateAsCal(firstDateAsStr);
+
+        LocalDateTime dt = LocalDateTime.parse(firstDateAsStr,
+                DateTimeFormat.forPattern(DateUtil.DATE_FORMAT));
+
+       // DateTime dt = new DateTime(firstDate);
+
+        int maximumValue = dt.dayOfMonth().getMaximumValue();
+
+        List<TimeRegTask> list= new ArrayList<TimeRegTask>();
+        for(int i=0; i < maximumValue; i++) {
+            String formattedDate = dt.toString(DateUtil.DATE_FORMAT);
+            list.addAll(db.getAllTimeRegByDate(formattedDate));
+            dt= dt.plusDays(1);
+        }
+
+
+        return list;
     }
 
     public List<TimeRegTask> getWeekList(String dateAsStr, final View rootView) {

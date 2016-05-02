@@ -15,13 +15,32 @@
     <string name="notification_text">Tids registering af timer mangler i periode 21-01-16 - 30-01-16.</string>
     <string name="action_preview">Pdf</string>
     <string name="title_activity_overview">Ugens tidsregistreringer</string>
+    <string name="title_activity_overview_montly">Månedens tidsregistreringer</string>
     <string name="overview">Oversigt</string>
     <string name="country_prompt">Choose a country</string>
     <string name="week_total_regs">Ugens tidsregistreringer</string>
     <string name="hintCompany">Indtast virksomhedsnavn som opgaven udføres for</string>
     <string name="hintTaskNumber">Indtast opgave nummer</string>
-    <string name="hintTaskName">Indtast opgave navn</string>
+    <string name="hintTaskName">Indtast opgave nummer og/eller navn</string>
     <string name="taskTaskHours">Indtast antal timer</string>
     <string name="hintTaskDescription">Indtast beskrivelse, matrialer, etc. (flere linier)</string>
     <string name="companyLabel">Virksomhed</string>
+    <string name="taskStartHours">Vælg start tid</string>
+    <string name="taskEndHours">Vælg slut tid</string>
+    <string name="taskBreaksHours">Angiv evt. pause i format 00:30 = 30 min</string>
+    <string name="action_monthly">Månedligt</string>
+    <string name="action_weekly">Ugentligt</string>
+    <string name="overview_label_weekly">Ugen i alt</string>
+    <string name="overview_label_montly">Måneden i alt</string>
+
+    <string-array name="hours_array">
+        <item>1</item>
+        <item>2</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
 </resources>

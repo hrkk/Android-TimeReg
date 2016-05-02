@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -66,13 +67,34 @@ public class OverviewActivity extends AppCompatActivity {
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        String type = OverviewActivityFragment.OW_TYPE_WEEKLY;
+
+        if (getIntent().getExtras() != null) {
+            type = getIntent().getExtras().getString(OverviewActivityFragment.OW_TYPE);
+        }
+
+        if (OverviewActivityFragment.OW_TYPE_WEEKLY.equals(type))
+            setTitle(R.string.title_activity_overview);
+        else if (OverviewActivityFragment.OW_TYPE_MONTHLY.equals(type))
+            setTitle(R.string.title_activity_overview_montly);
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
 
+        String type = OverviewActivityFragment.OW_TYPE_WEEKLY;
+
+        if (getIntent().getExtras() != null) {
+            type = getIntent().getExtras().getString(OverviewActivityFragment.OW_TYPE);
+        }
+        if (OverviewActivityFragment.OW_TYPE_WEEKLY.equals(type))
             getMenuInflater().inflate(R.menu.menu_overview, menu);
+        else if (OverviewActivityFragment.OW_TYPE_MONTHLY.equals(type))
+            getMenuInflater().inflate(R.menu.menu_overview_montly, menu);
+
 
         return true;
     }
@@ -124,6 +146,27 @@ public class OverviewActivity extends AppCompatActivity {
         if (id==R.id.action_preview) {
             createPdf();
             return true;
+        }
+
+        if(id==R.id.action_monthly) {
+//            Bundle bundle = new Bundle();
+//            String myMessage = "Stackoverflow is cool!";
+//            bundle.putString("message", myMessage);
+//
+//            OverviewActivityFragment fragInfo = new OverviewActivityFragment();
+//            fragInfo.setArguments(bundle);
+//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//            transaction.replace(R.id.fragment_overview, fragInfo);
+//            transaction.commit();
+
+            Intent intent = new Intent(this, OverviewActivity.class);
+            intent.putExtra(OverviewActivityFragment.OW_TYPE, OverviewActivityFragment.OW_TYPE_MONTHLY);
+            startActivity(intent);
+        }
+        if(id==R.id.action_weekly) {
+            Intent intent = new Intent(this, OverviewActivity.class);
+            intent.putExtra(OverviewActivityFragment.OW_TYPE, OverviewActivityFragment.OW_TYPE_WEEKLY);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

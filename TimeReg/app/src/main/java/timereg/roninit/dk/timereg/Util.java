@@ -3,6 +3,11 @@ package timereg.roninit.dk.timereg;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.joda.time.DateTime;
+import org.joda.time.Hours;
+import org.joda.time.LocalDate;
+import org.joda.time.Minutes;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -35,6 +40,29 @@ public class Util {
         return res;
     }
 
+    public static List<String> buildMontlyPeriodeDropdownList() {
+
+
+        List<String> res = new ArrayList<>(12);
+
+        DateTime firstDayInMonth = new DateTime().dayOfMonth().withMinimumValue();
+        DateTime lastDayInMonth = new DateTime().dayOfMonth().withMaximumValue();
+
+        for(int i=0; i< 12; i++) {
+
+            String firstDayInMonthAsStr = new LocalDate(firstDayInMonth).toString(DateUtil.DATE_FORMAT);
+            String lastDayInMonthAsStr = new LocalDate(lastDayInMonth).toString(DateUtil.DATE_FORMAT);
+            res.add(String.format("%s - %s", firstDayInMonthAsStr, lastDayInMonthAsStr));
+
+            firstDayInMonth = firstDayInMonth.minusMonths(1);
+            lastDayInMonth = lastDayInMonth.minusMonths(1);
+        }
+
+
+        return res;
+
+    }
+
     public static String getPeriodeStartDate(String dateAsStr) {
         Calendar cal = getPeriodeEndDateAsCal(dateAsStr);
         cal.add(Calendar.DAY_OF_YEAR, -6);
@@ -48,14 +76,36 @@ public class Util {
         return DateUtil.getFormattedDate(cal);
     }
 
-    public static double getDayTotalHours(List<TimeRegTask> taskList) {
-        double sum=0.0;
+    public static String getDayTotalHours(List<TimeRegTask> taskList) {
+        // double sum=0.0;
+        Hours sumH = Hours.hours(0);
+        Minutes sumM = Minutes.minutes(0);
         if (taskList != null) {
-            for(TimeRegTask task : taskList) {
-                sum += task.getHoursAsBigDecimal().doubleValue();
+            for (TimeRegTask task : taskList) {
+                // sum += task.getHoursAsBigDecimal().doubleValue();
+                String strHours = task.getHours().replace(".", ":");
+                String[] split = strHours.split(":");
+                String h = split[0];
+                if (split.length > 1) {
+                    String m = split[1];
+                    sumM = sumM.plus(Integer.valueOf(m));
+                }
+                sumH = sumH.plus(Integer.valueOf(h));
+
             }
         }
-        return sum;
+
+        if (sumM.getMinutes() != 0) {
+            int ho = sumM.getMinutes() / 60;
+            sumH = sumH.plus(ho);
+        }
+        int min = sumM.getMinutes() % 60;
+        int hours = sumH.getHours();
+
+        return new StringBuilder().append(
+                hours)
+                .append(":").append(Util.pad(min)).toString();
+
     }
 
     public static Map<String, List<TimeRegTask>> splitTimeRegs(List<TimeRegTask> taskList) {
@@ -140,5 +190,12 @@ public class Util {
                 dayOfWeek = 7;
         }
         return cal;
+    }
+
+    public static String pad(int c) {
+        if (c >= 10)
+            return String.valueOf(c);
+        else
+            return "0" + String.valueOf(c);
     }
 }

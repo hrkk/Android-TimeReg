@@ -15,6 +15,9 @@ public class TimeRegTask {
     private String additionInfomation;
     private String date;
     private String submitDate;
+    private String startTime;
+    private String endTime;
+    private String breakTime;
 
     public int getId() {
         return id;
@@ -29,7 +32,11 @@ public class TimeRegTask {
     }
 
     public void setTaskId(String taskId) {
-        this.taskId = taskId;
+        this.taskId = trim(taskId);
+    }
+
+    private String trim(String val) {
+        return val != null ? val.trim() : null;
     }
 
     public String getCompany() {
@@ -37,7 +44,7 @@ public class TimeRegTask {
     }
 
     public void setCompany(String company) {
-        this.company = company;
+        this.company = trim(company);
     }
 
     public String getTaskNumber() {
@@ -45,11 +52,14 @@ public class TimeRegTask {
     }
 
     public String getTaskNumberAndName() {
-        return String.format("%s-%s", getTaskNumber(), getTaskName());
+        if(getTaskNumber()!=null && !"".equals(getTaskNumber()))
+            return String.format("%s-%s", getTaskNumber(), getTaskName());
+        else
+            return getTaskName();
     }
 
     public void setTaskNumber(String taskNumber) {
-        this.taskNumber = taskNumber;
+        this.taskNumber = trim(taskNumber);
     }
 
     public String getTaskName() {
@@ -57,7 +67,7 @@ public class TimeRegTask {
     }
 
     public void setTaskName(String taskName) {
-        this.taskName = taskName;
+        this.taskName = trim(taskName);
     }
 
     public String getHours() {
@@ -65,7 +75,7 @@ public class TimeRegTask {
     }
 
     public BigDecimal getHoursAsBigDecimal() {
-        return new BigDecimal(hours);
+        return new BigDecimal(hours.replaceAll(":", "."));
     }
 
     public void setHours(String hours) {
@@ -77,7 +87,7 @@ public class TimeRegTask {
     }
 
     public void setAdditionInfomation(String additionInfomation) {
-        this.additionInfomation = additionInfomation;
+        this.additionInfomation = trim(additionInfomation);
     }
 
     public String getDate() {
@@ -85,7 +95,7 @@ public class TimeRegTask {
     }
 
     public void setDate(String date) {
-        this.date = date;
+        this.date = trim(date);
     }
 
     public String getSubmitDate() {
@@ -93,11 +103,35 @@ public class TimeRegTask {
     }
 
     public void setSubmitDate(String submitDate) {
-        this.submitDate = submitDate;
+        this.submitDate = trim(submitDate);
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getBreakTime() {
+        return breakTime;
+    }
+
+    public void setBreakTime(String breakTime) {
+        this.breakTime = breakTime;
     }
 
     @Override
     public String toString() {
-        return getTaskNumber() + " "+getTaskName() +" : "+getHours() +" timer";
+        return getTaskName() +" : "+getHours() +" timer";
     }
 }

@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_overview) {
             Intent intent = new Intent(this, OverviewActivity.class);
+            intent.putExtra(OverviewActivityFragment.OW_TYPE, OverviewActivityFragment.OW_TYPE_WEEKLY);
             startActivity(intent);
             return true;
         }

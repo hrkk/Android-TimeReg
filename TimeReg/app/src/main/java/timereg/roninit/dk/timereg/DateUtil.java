@@ -9,12 +9,12 @@ import android.text.GetChars;
 import android.util.Log;
 
 public class DateUtil {
-    private static final String DATE_FORMAT = "dd-MM-yyyy";
+    public static final String DATE_FORMAT = "dd-MM-yyyy";
     private static final String DATE_FORMAT_WEEKDAY = "EEEEEEE-MM-yyyy";
     private static final String ONLY_WEEKDAY_FORMAT = "EEEEEEE";
     private static final String DATE_FORMAT_LONG = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
-    static SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+    public static SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 
     public static String getFormattedDate(Calendar calendar) {
         // Locale locale = new Locale("da");
@@ -53,14 +53,14 @@ public class DateUtil {
         return sdf.format(now.getTime());
     }
 
-    private static Date createDate(int day, int month, int year, int hour,
+    public static Date createDate(int day, int month, int year, int hour,
                                    int min) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DATE, day);
         cal.set(Calendar.MONTH, month - 1);
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.HOUR, hour);
-        cal.set(Calendar.MINUTE, hour);
+        cal.set(Calendar.MINUTE, min);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
     }

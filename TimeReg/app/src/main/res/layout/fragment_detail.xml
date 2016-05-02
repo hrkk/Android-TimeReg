@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -16,11 +17,11 @@
         android:layout_height="wrap_content"
         android:hint="@string/hintCompany" />
     <!-- projectName -->
-    <AutoCompleteTextView
+    <!-- AutoCompleteTextView
         android:id="@+id/taskNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hintTaskNumber" />
+        android:hint="@string/hintTaskNumber" /-->
 
     <AutoCompleteTextView
         android:id="@+id/taskName"
@@ -28,13 +29,71 @@
         android:layout_height="wrap_content"
         android:hint="@string/hintTaskName" />
 
-    <EditText
-        android:id="@+id/taskHours"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:ems="2"
-        android:hint="@string/taskTaskHours"
-        android:inputType="numberDecimal" />
+        android:orientation="horizontal"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp">
+
+        <com.github.pinball83.maskededittext.MaskedEditText
+            android:id="@+id/taskStartHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:width="60dp"
+            android:maxLength="5"
+            android:inputType="number"
+            app:mask="**:**"
+            app:notMaskedSymbol="*"
+            />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="til" />
+
+        <com.github.pinball83.maskededittext.MaskedEditText
+            android:id="@+id/taskEndHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:width="60dp"
+            android:maxLength="5"
+            android:inputType="number"
+            app:mask="**:**"
+            app:notMaskedSymbol="*" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="pause" />
+
+        <com.github.pinball83.maskededittext.MaskedEditText
+            android:id="@+id/taskBreakTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:width="60dp"
+            android:maxLength="5"
+            android:inputType="number"
+            app:mask="**:**"
+            app:notMaskedSymbol="*" />
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="=" />
+
+        <TextView
+            android:id="@+id/taskHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="7:30" />
+
+    </LinearLayout>
+
 
     <EditText
         android:id="@+id/taskDescription"

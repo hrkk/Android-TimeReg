@@ -20,6 +20,14 @@ public class Globals {
     // Global variable
     private int data;
 
+    public String type;
+
+    public String getType(){
+        if(type==null)
+            return "WEEKLY";
+        return type;
+    }
+
     public String filename;
 
     //private List<TimeRegTask> tasks;

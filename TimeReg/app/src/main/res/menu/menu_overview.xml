@@ -14,4 +14,10 @@
         android:orderInCategory="95"
         android:title="@string/action_preview"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_monthly"
+        android:orderInCategory="90"
+        android:title="@string/action_monthly"
+        app:showAsAction="never" />
 </menu>
